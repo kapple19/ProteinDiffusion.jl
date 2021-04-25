@@ -1,0 +1,454 @@
+\documentclass{report}
+\title{Diffusion of Proteins on Cell Membranes \\ 1D Finite Element Method}
+\author{Aaron Kaw}
+\date{}
+
+\usepackage[fleqn]{amsmath}
+\usepackage{amsfonts}
+\usepackage{physics}
+\usepackage{nicefrac}
+\usepackage{tabularx}
+\usepackage{parskip}
+
+\newcommand\Par[1]{{ \left({#1}\right) }}
+\newcommand\Brack[1]{{ \left[{#1}\right] }}
+\newcommand\Brace[1]{{ \left\{{#1}\right\} }}
+\newcommand\Abs[1]{{ \left\lvert{#1}\right\rvert }}
+\newcommand\Angle[1]{{ \left\langle{#1}\right\rangle }}
+
+\newcommand\nf[2]{{ \nicefrac{#1}{#2} }}
+
+\newcommand\bbP{{ \mathbb{P} }}
+\newcommand\bbR{{ \mathbb{R} }}
+\newcommand\bbZ{{ \mathbb{Z} }}
+
+\newcommand\D{{ D' }}
+\newcommand\R{{ R' }}
+\newcommand\Rs{{ R'_s }}
+\newcommand\Rc{{ R'_c }}
+\newcommand\Rv{{ R'_v }}
+
+\newcommand\conv{{ \text{conv} }}
+
+\begin{document}
+\maketitle
+
+\chapter{Diffusion}
+\section{Conservation of Mass}
+\begin{align*}
+	\pdv{u}{t} &= -\nabla \dotproduct \vec{J}
+\end{align*}
+
+\section{Fick's First Law of Diffusion}
+\begin{align*}
+	J(\vec{x}, t) &= -D(\vec{x}, t) \nabla{u(\vec{x}, t)}
+\end{align*}
+
+\section{Diffusion Equation}
+\begin{align*}
+	\pdv{u(\vec{x}, t)}{t} &= \nabla \dotproduct \Brack{D(\vec{x}, t)\ \nabla{u(\vec{x}, t)}}
+\end{align*}
+
+In spherical coordinates with azimuthal symmetry on the surface of a sphere,
+\begin{align*}
+	\rho^2 \sin(\varphi) \pdv{u}{t} &= \pdv{}{\varphi}\Par{D(\phi) \sin(\phi) \pdv{u}{\phi}}
+\end{align*}
+
+\begin{tabularx}{\textwidth}{lX}
+	$R_v$ & Pre-Fusion Vesicle Radius \\
+	$R_c$ & Pre-Fusion Cell Radius
+\end{tabularx}
+
+\begin{tabularx}{\textwidth}{lX}
+	$D_v$ & Vesicle Diffusivity \\
+	$D_c$ & Cell Diffusivity
+\end{tabularx}
+
+\section{Total Concentration}
+\begin{align*}
+	\Angle{\bullet} &= 2\pi \rho^2 \int_0^\pi \bullet \sin(\varphi)\ \dd\varphi
+\end{align*}
+
+\chapter{Full Fusion}
+\section{Fusion Parameters}
+\begin{align*}
+	D(\varphi) &= D_v H(\varphi_j - \varphi) + D_c H(\varphi - \varphi_j) \\
+	\R^2 &= R_v^2 + R_c^2 \\
+	\varphi_j &= \acos\Par{\frac{R_c^2 - R_v^2}{\R^2}} \\
+	\Rs &= \frac{2 R_v R_c}{\R}
+\end{align*}
+
+\section{Initial-and-Boundary Value Problem}
+\begin{align*}
+	\Omega &= (0, \pi)
+\end{align*}
+
+\begin{align*}
+	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}}
+	& \varphi &\in \Omega
+	& t &\in \bbR_0^+ \\
+	u(\varphi, t) &= H(\varphi_j - \varphi)
+	& \varphi &\in \Omega
+	& t &\in \bbR_0^+
+\end{align*}
+
+\section{Weak Form}
+\begin{align*}
+	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} \\
+	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \\
+	\R^2 \int_\Omega \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) \dd\varphi &= \int_\Omega \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \dd\varphi \\
+	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= \Brack{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} w(\varphi)}_\Omega
+	- \int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi} \dd\varphi \\
+	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= -\int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi} \dd\varphi \\
+	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= - \frac{1}{2\pi \R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi}}
+\end{align*}
+yielding the weak form
+\begin{align*}
+	0 &= \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} + \frac{1}{\R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi}}
+\end{align*}
+with total concentration
+\begin{align*}
+	\Angle{\bullet} &= 2\pi \R^2 \int_\Omega \sin(\varphi) \bullet \dd\varphi
+\end{align*}
+
+\chapter{Kiss-and-Run Fusion}
+\begin{tabularx}{\textwidth}{lX}
+	$R_j$ & Post-Fusion Junction Radius
+\end{tabularx}
+
+\section{Fusion Parameters}
+\begin{align*}
+	\Rv &= \frac{2 R_v^2}{\sqrt{4R_v^2 - R_j^2}} \\
+	\Rc &= \frac{2 R_c^2}{\sqrt{4R_c^2 - R_j^2}} \\
+	\phi_v &= \pi - \asin\Par{\frac{R_j}{\Rv}} \\
+	\psi_c &= \pi - \asin\Par{\frac{R_j}{\Rc}}
+\end{align*}
+
+\section{Initial-and-Boundary Value Problem}
+\begin{align*}
+	\Omega_v &= (0, \phi_v) \\
+	\Omega_c &= (\pi - \psi_c, \pi)
+\end{align*}
+
+\begin{align*}
+	\Rv^2 \sin(\phi) \pdv{v(\phi, t)}{t} &= D_v \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}}
+	& \phi &\in \Omega_v
+	& t &\in \bbR_0^+ \\
+	\Rc^2 \sin(\psi) \pdv{c(\psi, t)}{t} &= D_c \pdv\psi \Par{\sin(\psi) \pdv{c(\psi, t)}{\psi}}
+	& \psi &\in \Omega_c
+	& t &\in \bbR_0^+ \\
+\end{align*}
+
+At the junction,
+\begin{align*}
+	v(\phi, t) &= c(\psi, t)
+	& \phi &= \sup\Omega_v
+	& \psi &= \inf\Omega_c
+	& t &\in \bbR_0^+ \\
+	\frac{D_v}{\Rv} \pdv{v(\phi, t)}{\phi} &= \frac{D_c}{\Rc} \pdv{c(\psi, t)}{\psi}
+	& \phi &= \sup\Omega_v
+	& \psi &= \inf\Omega_c
+	& t &\in \bbR_0^+ \\
+\end{align*}
+
+Initially,
+\begin{align*}
+	v(\phi, t) &= 1 & \phi &\in \Omega_v & & & t &\in \bbR_0^+ \\
+	c(\psi, t) &= 0 & & & \psi &\in \Omega_c & t &\in \bbR_0^+ \\
+	v(\phi, t) &= c(\psi, t) = 0.5 & \phi &\in \Omega_v & \psi &\in \Omega_c & t &\in \bbR_0^+
+\end{align*}
+
+\section{Weak Form}
+On the vesicle,
+\begin{align*}
+	\Rv^2 \sin(\phi) \pdv{v(\phi, t)}{t} &= D_v \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}} \\
+	\Rv^2 \sin(\phi) \pdv{v(\phi, t)}{t} f(\phi) &= D_v \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}} f(\phi) \\
+	\Rv^2 \int_{\Omega_v} \sin(\phi) \pdv{v(\phi, t)}{t} f(\phi)\ \dd\phi &= D_v \int_{\Omega_v} \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}} f(\phi)\ \dd\phi \\
+	\Rv^2 \int_{\Omega_v} \sin(\phi) \pdv{v(\phi, t)}{t} f(\phi)\ \dd\phi &= D_v \int_{\Omega_v} \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}} f(\phi)\ \dd\phi \\
+	\frac{1}{2\pi} \Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v &= D_v \Par{\Brack{\sin(\phi) \pdv{v(\phi, t)}{\phi} f(\phi)}_{\Omega_v} - \int_{\Omega_v} \sin(\phi) \pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}\ \dd\phi} \\
+	\frac{1}{2\pi} \Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v &= D_v \Par{\Brack{\sin(\phi_v) \pdv{v(\phi_v, t)}{\phi} f(\phi_v) - 0} - \frac{1}{2\pi \Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}}} \\
+	\frac{1}{2\pi} \Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v &= D_v \Par{\sin(\phi_v) \pdv{v(\phi_v, t)}{\phi} f(\phi_v) - \frac{1}{2\pi \Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}}}
+\end{align*}
+
+On the cell,
+\begin{align*}
+	\Rc^2 \sin(\psi) \pdv{c(\psi, t)}{t} &= D_c \pdv\psi \Par{\sin(\psi) \pdv{c(\psi, t)}{\psi}} \\
+	\frac{1}{2\pi} \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c &= D_c \Par{\Brack{\sin(\psi) \pdv{c(\psi, t)}{\psi} g(\psi)}_{\Omega_v} - \int_{\Omega_v} \sin(\psi) \pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}\ \dd\psi} \\
+	\frac{1}{2\pi} \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c &= D_c \Par{\Brack{0 - \sin(\pi - \psi_v) \pdv{c(\pi - \psi_v, t)}{\psi} g(\pi - \psi_v)} - \frac{1}{2\pi \Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}} \\
+	\frac{1}{2\pi} \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c &= -D_c \Par{\sin(\pi - \psi_v) \pdv{c(\pi - \psi_v, t)}{\psi} g(\pi - \psi_v) + \frac{1}{2\pi \Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}}
+\end{align*}
+
+Adding the two expressions,
+\begin{align*}
+	& \Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v + \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c \\
+	& \quad= D_v \sin(\phi_v) \pdv{v(\phi_v, t)}{\phi} f(\phi_v) - D_c \sin(\pi - \psi_v) \pdv{c(\pi - \psi_v, t)}{\psi} g(\pi - \psi_v) \\
+	& \qquad- \Par{\frac{D_v}{\Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}} + \frac{D_c}{\Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}}
+\end{align*}
+then substituting the membrane angle sizes
+\begin{align*}
+	& \frac{1}{2\pi} \Par{\Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v + \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c} \\
+	& \quad= D_v \frac{R_j}{\Rv} \pdv{v(\phi_v, t)}{\phi} f(\phi_v) - D_c \frac{R_j}{\Rc} \pdv{c(\pi - \psi_v, t)}{\psi} g(\pi - \psi_v) \\
+	& \qquad- \frac{1}{2\pi} \Par{\frac{D_v}{\Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}} + \frac{D_c}{\Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}}
+\end{align*}
+
+Select $f(\phi)$ and $g(\psi)$ such that
+\begin{align*}
+	f(\phi_v) &= g(\pi - \psi_c).
+\end{align*}
+so
+\begin{align*}
+	0 &= \Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v + \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c \\
+	&\quad+ \frac{D_v}{\Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}} + \frac{D_c}{\Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}
+\end{align*}
+
+Define arc-length transformation such that
+\begin{align*}
+	s_j &= \Rv \phi_v \\
+	s_P &= s_j + \Rc \psi_c \\
+	s &= \begin{cases}
+		\Rv \phi & \phi \in \Omega_v \\
+		s_j + \Rc \Par{\psi + \psi_c - \pi} & \psi \in \Omega_c
+	\end{cases}
+\end{align*}
+so inverse transformations are
+\begin{align*}
+	\Gamma_v &= (0, s_j) \\
+	\Gamma_c &= (s_j, s_P) \\
+	\Gamma &= \conv\Par{\Gamma_v \cup \Gamma_c} \\
+	\phi(s) &= \frac{s}{\Rv} \\
+	\psi(s) &= \frac{s - s_j}{\Rc} + \pi - \psi_c \\\
+	\omega(s) &= \begin{cases}
+		\phi(s) & s \in \Gamma_v \\
+		\psi(s) & s \in \Gamma_c
+	\end{cases}
+\end{align*}
+and define $u(s, t)$ such that
+\begin{align*}
+	u(s, t) &= \begin{cases}
+		v(\phi(s), t) & s \in \Gamma_v \\
+		c(\psi(s), t) & s \in \Gamma_c
+	\end{cases}
+\end{align*}
+so derivatives become
+\begin{align*}
+	\dd\phi &= \frac{1}{\Rv} \dd{s} \\
+	\dd\psi &= \frac{1}{\Rc} \dd{s} \\
+	\pdv{v(\phi, t)}{\phi} &= \Rv \pdv{u(s, t)}{s} \\
+	\pdv{c(\psi, t)}{\psi} &= \Rc \pdv{u(s, t)}{s}
+\end{align*}
+and define
+\begin{align*}
+	w(s) &= \begin{cases}
+		f(\phi(s), t) & s \in \Gamma_v \\
+		g(\psi(s), t) & s \in \Gamma_c
+	\end{cases}
+\end{align*}
+so our weak form becomes
+\begin{align*}
+	0 &= \Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v
+	+ \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c \\
+	&\quad+ \frac{D_v}{\Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}}
+	+ \frac{D_c}{\Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}} \\
+	0 &= \Rv^2 \int_{\Omega_v} \sin(\phi) \pdv{v(\phi, t)}{t} f(\phi) \dd\phi
+	+ \Rc^2 \int_{\Omega_c} \sin(\psi) \pdv{c(\psi, t)}{t} g(\psi) \dd\psi \\
+	&\quad+ D_v \int_{\Omega_v} \sin(\phi) \pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi} \dd\phi
+	+ D_c \int_{\Omega_c} \sin(\psi) \pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi} \dd\psi \\
+	0 &= \Rv \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{t} w(s) \dd{s}
+	+ \Rc \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{t} w(s) \dd{s} \\
+	&\quad+ D_v \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s} \dd{s} + D_c \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s} \dd{s} \\
+	0 &= \int_\Gamma \sin\Par{\omega(s)} \R(s) \pdv{u(s, t)}{t} w(s) + \int_\Gamma \sin\Par{\omega(s)} D(s) \pdv{u(s, t)}{s} \pdv{w(s)}{s} \dd{s}
+\end{align*}
+yielding our weak form in arc-length
+\begin{align*}
+	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{\R(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s}}
+\end{align*}
+with
+\begin{align*}
+	\R(s) &= \begin{cases}
+		\Rv & s \in \Gamma_v \\
+		\Rc & s \in \Gamma_c
+	\end{cases} \\
+	\Angle{\bullet} &= 2\pi \int \R(s) \sin\Par{\omega(s)} \bullet \dd{s}
+\end{align*}
+
+\chapter{Finite Element Method}
+The finite element method expressed generically for the fusion modes of full and kiss-and-run takes a weak formulation
+\begin{align*}
+	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{R(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s}}
+\end{align*}
+with
+\begin{align*}
+	\Angle{\bullet} &= 2\pi \int_\Gamma R(s) \sin\Par{\omega(s)} \bullet \dd{s}
+\end{align*}
+for $\Gamma$, $s$, $D(s)$, $R(s)$, and $\omega(s)$ defined by the fusion mode model.
+
+\section{Spatial Discretisation}
+Select positive integers $p_j$ and $P$ such that
+\begin{align*}
+	p_j < P
+\end{align*}
+
+Define
+\begin{align*}
+	\bbP &= \Brace{0, 1, 2, ..., P}
+\end{align*}
+
+Select values $s_p$ for $p \in \bbP$ such that
+\begin{align*}
+	0 = s_0 < s_1 < \cdots s_{p_j - 1} < s_{p_j} = s_j < s_{p_j + 1} < \cdots < s_{P - 1} < s_P
+\end{align*}
+
+Define their spacing,
+\begin{align*}
+	h_p &= s_p - s_{p-1} & s \in \bbP^+
+\end{align*}
+
+Define hat functions such that
+\begin{align*}
+	\Lambda_p(s) &= \begin{cases}
+		1 & s = s_p \\
+		\dfrac{s - s_{p-1}}{h_p} & s \in (s_{p-1}, s_p) \\
+		\dfrac{s_{p+1} - s}{h_{p+1}} & s \in (s_p, s_{p+1}) \\
+		0 & \text{otherwise}
+	\end{cases}
+\end{align*}
+
+Transform the weak form into a system of equations by selecting
+\begin{align*}
+	w(s) &= \Lambda_p(s) & p &\in \bbP
+\end{align*}
+so
+\begin{align*}
+	0 &= \Angle{\pdv{u(s, t)}{t} \Lambda_p(s)} + \Angle{\frac{D(s)}{R(s)} \pdv{u(s, t)}{s} \pdv{\Lambda_p(s)}{s}} & p &\in \bbP
+\end{align*}
+
+Project the solution $u(s, t)$ onto the space of piecewise-linear functions defined on the discrete grid $s_p$, and define this projection as
+\begin{align*}
+	u_h(s, t) &= \sum_{q = 0}^P U_q(t) \Lambda_q(s)
+\end{align*}
+and impose this by substitution so
+\begin{align*}
+	0 &= \pdv{U_q(t)}{t} \Angle{\Lambda_q(s) \Lambda_p(s)} + U_q(t) \Angle{\frac{D(s)}{R(s)} \pdv{\Lambda_q(s)}{s} \pdv{\Lambda_p(s)}{s}}
+\end{align*}
+in Einstein notation.
+
+Define
+\begin{align*}
+	\Vec{U}(t) &= \Brack{U_0(t)\ U_1(t)\ \cdots\ U_P(t)}^\text{T} \\
+	\Brack{M}_{pq} &= \Angle{\Lambda_q(s) \Lambda_p(s)} \\
+	\Brack{S}_{pq} &= \Angle{\frac{D(s)}{R(s)} \pdv{\Lambda_q(s)}{s} \pdv{\Lambda_p(s)}{s}}
+\end{align*}
+so we have our system
+\begin{align*}
+	0 &= M \dv{\vec{U}(t)}{t} + S \vec{U}(t)
+\end{align*}
+
+\section{Temporal Discretisation}
+Due to stiffness, we select a backward Euler dynamic timestepping scheme. Define
+\begin{align*}
+	0 &= t_0 < t_1 < \cdots \\
+	\vec{U}^n &= \vec{U}(t_n) & n &\in \bbZ_0^+
+\end{align*}
+so
+\begin{align*}
+	0 &= M \frac{\vec{U}^n - \vec{U}^{n - 1}}{\Delta{t}_n} + S \vec{U}^n \\
+	0 &= M \Par{\vec{U}^n - \vec{U}^{n - 1}} + \Delta{t}_n S \vec{U}^n \\
+	0 &= \Par{M + \Delta{t}_n S} \vec{U}^n - M \vec{U}^{n-1}
+\end{align*}
+yielding the matrix equation
+\begin{align*}
+	\Par{M + \Delta{t}_n S} \vec{U}^n &= M \vec{U}^{n-1}
+\end{align*}
+
+Due to accuracy needing small $h_p$, Simpson's Rule with two subintervals is used to evaluate the integral for the mass matrix to avoid machine rounding errors via division by small $h_p$ values.
+\begin{align*}
+	\int_a^b f(x) \dd{x} &\approx \frac{b - a}{6} \Brack{f(a) + 4 f\Par{\frac{a + b}{2}} + f(b)}
+\end{align*}
+
+Additionally, note the diagonalism, i.e.
+\begin{align*}
+	\Brack{M}_{pq} &= \Brack{M}_{qp} \\
+	\Brack{S}_{pq} &= \Brack{S}_{qp}
+\end{align*}
+thus, WLOG we calculate
+\begin{align*}
+	& \Brack{M}_{pp}, \Brack{S}_{pp} & p &\in \bbP \tag{diagonal} \\
+	& \Brack{M}_{p-1, p}, \Brack{S}_{p-1, p} & p &\in \bbP^+ \tag{off-diagonal}
+\end{align*}
+For clarity, define
+\begin{align*}
+	\bbP_- &= \Brace{0, ..., P-1} \\
+	\bbP_+ &= \Brace{1, ..., P} \\
+	\R(s) &= R(s) \sin\Par{\omega(s)} \\
+	\D(s) &= D(s) \sin\Par{\omega(s)}
+\end{align*}
+
+\section{Mass Matrix}
+\begin{align*}
+	\Brack{M}_{pp} &= \Angle{\Lambda_p^2(s)} \\
+	&= 2\pi \int_\Gamma \R(s) \Lambda_p^2(s) \dd{s} \\
+	&= 2\pi \Par{I_{\bbP_+}(p) \int_{s_{p-1}}^{s_p} \R(s) \frac{s - s_{p-1}}{h_p} \dd{s} + I_{\bbP_-}(p) \int_{s_p}^{s_{p+1}} \R(s) \frac{s_{p+1} - s}{h_{p+1}} \dd{s}}
+\end{align*}
+
+\begin{align*}
+	& \int_{s_{p-1}}^{s_p} \R(s) \frac{s - s_{p-1}}{h_p} \dd{s} \\
+	&\quad = \frac{1}{h_p} \int_{s_{p-1}}^{s_p} \R(s) \Par{s - s_{p-1}} \dd{s} \\
+	&\quad \approx \frac{1}{6} \Brack{
+		\R(s_p) h_p
+		+ 4 \R(s_{p-\nf12}) \Par{\frac{s_{p-1} + s_p}{2} - s_{p-1}}
+	} \\
+	&\quad = \frac{1}{6} \Brack{
+		\R(s_p) h_p + 2 \R(s_{p-\nf12}) h_p
+	}
+\end{align*}
+
+\begin{align*}
+	& \int_{s_p}^{s_{p+1}} \R(s) \frac{s_{p+1} - s}{h_{p+1}} \dd{s} \\
+	&\quad = \frac{1}{h_p} \int_{s_p}^{s_{p+1}} \R(s) \Par{s_{p+1} - s} \dd{s} \\
+	&\quad \approx \frac{1}{6} \Brack{
+		\R(s_p) h_{p+1}
+		+ 4 \R(s_{p+\nf12}) \Par{s_{p+1} - \frac{s_p + s_{p+1}}{2}}
+	} \\
+	&\quad = \frac{1}{6} \Brack{
+		\R(s_p) h_{p+1} + 2 \R(s_{p+\nf12} h_{p+1})
+	}
+\end{align*}
+
+So
+\begin{align*}
+	\Brack{M}_{pp} &\approx \frac{\pi}{3} \Par{I_{\bbP_+}(p) h_p \Brack{
+		\R(s_p) + 2 \R(s_{p-\nf12})
+	} + I_{\bbP_-}(p) h_{p+1} \Brack{
+		\R(s_p) + 2 \R(s_{p+\nf12} )
+	}}
+\end{align*}
+
+\begin{align*}
+	\Brack{M}_{p-1, p} &= \Angle{\Lambda_{p-1}(s) \Lambda_p(s)} \\
+	&= 2\pi \int_\Gamma \R(s) \Lambda_{p-1}(s) \Lambda_p(s) \dd{s} \\
+	&= \frac{2\pi}{h_p^2} \int_{s_{p-1}}^{s_p} \R(s) \Par{s_p - s} \Par{s - s_{p-1}} \dd{s} \\
+	&\approx \frac{\pi}{3h_p} \Brack{
+		4 \R(s_{p-\nf12}) \Par{s_p - \frac{s_{p-1} + s_p}{2}} \Par{\frac{s_{p-1} + s_p}{2} - s_{p-1}}
+	}
+\end{align*}
+yielding
+\begin{align*}
+	\Brack{M}_{p-1, p} &\approx \frac{\pi h_p}{3} \R(s_{p-\nf12})
+\end{align*}
+
+\section{Stiffness Matrix}
+\begin{align*}
+	\Brack{S}_{pp} &= \Angle{\frac{D(s)}{R(s)} \Par{\pdv{\Lambda_p(s)}{s}}^2} \\
+	&= 2\pi \int_\Gamma \D(s) \Par{\pdv{\Lambda_p(s)}{s}}^2 \dd{s} \\
+	&= 2\pi \Par{I_{\bbP_+}(p) \int_{s_{p-1}}^{s_p} \D(s) \frac{1}{h_p^2} \dd{s} + I_{\bbP_-}(p) \int_{s_p}^{s_{p+1}} \D(s) \frac{1}{h_{p+1}^2} \dd{s}} \\
+	&= 2\pi \Par{\frac{I_{\bbP_+}(p)}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s} + \frac{I_{\bbP_-}(p)}{h_{p+1}^2} \int_{s_p}^{s_{p+1}} \D(s) \dd{s}}
+\end{align*}
+
+\begin{align*}
+	\Brack{S}_{p-1, p} &= \Angle{\frac{D(s)}{R(s)} \pdv{\Lambda_{p-1}(s)}{s} \pdv{\Lambda_p(s)}{s}} \\
+	&= 2\pi \int_\Gamma \D(s) \pdv{\Lambda_{p-1}(s)}{s} \pdv{\Lambda_p(s)}{s} \dd{s} \\
+	&= 2\pi \int_{s_{p-1}}^{s_p} \D(s) \frac{-1}{h_p^2} \dd{s} \\
+	&= \frac{-2\pi}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s}
+\end{align*}
+
+\end{document}

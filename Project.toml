@@ -1,0 +1,12 @@
+name = "ProteinDiffusion"
+uuid = "dbc1c7f0-5f0e-4f3e-a0c3-93a85a2a74f6"
+authors = ["Aaron Kaw <aaronjkaw@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
