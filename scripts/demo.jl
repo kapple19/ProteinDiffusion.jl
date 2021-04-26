@@ -21,6 +21,8 @@ function run_demo(Rv, Rc, Rj, Dv, Dc, name::String)
 	savefig(pfint, "img/" * name * "_fullfusion_int.png")
 	savefig(pkarc, "img/" * name * "_knrfusion_arc.png")
 	savefig(pkint, "img/" * name * "_knrfusion_int.png")
+
+	pd
 end
 
 ## Generic
@@ -30,22 +32,22 @@ Rj = 0.4
 Dv = 1.0
 Dc = 0.2
 
-run_demo(Rv, Rc, Rj, Dv, Dc, "generic")
+pdgen = run_demo(Rv, Rc, Rj, Dv, Dc, "generic")
 
 ## β-cells
 Rv = 150e-3 # [μm] insulin vesicles
 Rc = 4.0 # [μm] β-cells
 Rj = 50e-3
-Dv = 1.0
+Dv = 1e-4
 Dc = 0.2
 
-run_demo(Rv, Rc, Rj, Dv, Dc, "betacells")
+pdbeta = run_demo(Rv, Rc, Rj, Dv, Dc, "betacells")
 
 ## Adipocytes
 Rv = 75e-3 # [μm] GLUT4 vesicles
 Rc = 17.0 # [μm] adipocytes (smaller of bimodal size distribution)
 Rj = Rv/2 # [μm] pore junction radius
-Dv = 1.0
-Dc = 0.2
+Dv = 1e-4
+Dc = 1e-2
 
-run_demo(Rv, Rc, Rj, Dv, Dc, "adipocytes")
+pdadip = run_demo(Rv, Rc, Rj, Dv, Dc, "adipocytes")

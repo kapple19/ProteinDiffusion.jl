@@ -7,14 +7,18 @@ function fem_diffusion(
 	sP::Float64,
 	uf)
 
-	P = 1000
-	pj = P÷3
+	P = 1500
+	pj = P÷2
 	ℙ = Int.(0:P)
+	
+	function spatial_grid(p)
+		p ≤ pj && return sj * (1 - (1 - p / pj)^3)
+		p > pj && return sj + (sP - sj) * ((p - pj) / (P - pj))^3
+		return NaN
+	end
+
 	s = OffsetArray(
-		[
-			LinRange(0.0, sj, pj+1);
-			LinRange(sj, sP, P - pj + 1)
-		] |> unique |> sort,
+		[spatial_grid(p) for p ∈ 0:P],
 		Origin(0)
 	)
 	h = s |> parent |> diff
@@ -46,7 +50,8 @@ function fem_diffusion(
 		)
 	)
 
-	Δt′ = R(0.0) * R(0.0) / D(0.0) / D(sP) / 1e3
+	R²(s) = R(s)^2
+	Δt′ = R²(0.0) * R²(sP) / D(0.0) / D(sP) / 1e4
 	tol = 1e-3
 	t = OffsetArray([0.0], Origin(0))
 	U = OffsetArray([H.(sj .- s)], Origin(0))

@@ -43,12 +43,12 @@ end
 @recipe function f(
 	ang::FullDiffusionAngle,
 	membrane = :system;
-	xlim = (0, π),
+	xlim = (0, 2ang.ϕj),
 	ylim = (0, 1))
 
 	title := "Full Fusion: WRT Angle"
 	yguide := "Relative Concentration"
-	xguide := "Polar Angle [rad]"
+	xguide := "Polar Angle [rad]  (first $(200ang.ϕj/π) % of domain)"
 	legend := false
 
 	xlims := xlim
@@ -102,18 +102,18 @@ end
 @recipe function f(
 	arc::KNRDiffusionArc,
 	membrane = :system;
-	xlim = (0, arc.S),
+	xlim = (0, 2arc.sj),
 	ylim = (0, 1))
 
 	title := "KNR Fusion: WRT Arc Length"
 	yguide := "Relative Concentration"
-	xguide := "Arc Length"
+	xguide := "Arc Length (first $(200arc.sj/arc.S) % of domain)"
 	legend := false
 
 	xlims := xlim
 	ylims := ylim
 
-	color_palette := cgrad(:blues, Nt)
+	color_palette := palette(:blues, Nt)
 
 	select_concentration_knr_fusion(membrane, arc)
 end
