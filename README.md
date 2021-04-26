@@ -5,16 +5,14 @@ Modelling the diffusion of proteins on cell membranes for two fusion modes:
 
 This package simulates both scenarios as a concentration level diffusion on the surface of a sphere (full fusion) or connected spheres (kiss-and-run).
 
-![](img/generic_2danim.gif)
-
-![](img/generic_3danim.gif)
+![](anim/unrealistic_2danim.gif)
 
 ## Usage
 ### Installation
 This package is not registered, and thus can only be installed through cloning this repository.
 
 ### 
-After cloning, run
+After git cloning, run
 ```julia
 using ProteinDiffusion
 ```
@@ -36,23 +34,23 @@ Run the model.
 f = full_fusion(Rv, Rc, Dv, Dc)
 ```
 
-Plot the concentration WRT angle.
+Plot the concentration WRT arc length.
 ```julia
 using Plots
-plot(f.ang)
+plot(f.ang, title = "Unrealistic")
 ```
 
-![](img/generic_fullfusion_ang.png)
+![](plots/unrealistic_fullfusion_arc)
 
 View the total concentration integral over time.
 ```julia
 using Plots
-plot(f.int)
+plot(f.int, title = "Unrealistic")
 ```
 
-![](img/generic_fullfusion_int.png)
+![](plots/unrealistic_fullfusion_int.png)
 
-The raw data is stored in `f.raw`, and can also be plotted.
+The raw output data is stored in `f.raw` and can also be plotted as above.
 
 ### Kiss-and-Run Fusion
 Set the parameters.
@@ -78,7 +76,7 @@ using Plots
 plot(k.arc)
 ```
 
-![](img/generic_knrfusion_arc.png)
+![](plots/unrealistic_knrfusion_arc.png)
 
 View the total concentration integral over time.
 ```julia
@@ -86,7 +84,9 @@ using Plots
 plot(k.int)
 ```
 
-![](img/generic_knrfusion_int.png)
+![](plots/unrealistic_knrfusion_int.png)
+
+The raw output data is stored in `k.raw` and can also be plotted as above.
 
 ### Interactive Pluto Script
 TODO
@@ -100,8 +100,5 @@ As detailed in the [documentation][doc]:
 5. The solved dynamics are interpolated into a function.
 
 ## References
-
-## Author Notes
-Total concentration not preserved
 
 [doc]: ./doc/proteindiffusion.pdf

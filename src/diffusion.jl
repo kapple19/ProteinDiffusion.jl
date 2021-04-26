@@ -1,67 +1,75 @@
-NestedOSV = OffsetVector{OffsetVector{Float64, Vector{Float64}}, Vector{OffsetVector{Float64, Vector{Float64}}}}
-
-struct FullDiffusionRaw <: PD
-	U::NestedOSV
-	V::NestedOSV
-	C::NestedOSV
-	ϕ::OffsetVector{Float64}
-	t::OffsetVector{Float64}
+struct RawOutput <: PD
+	mode::String
+	s::OVector64
+	t::OVector64
+	U::NOVector64
+	pj::Int64
 end
 
-struct KNRDiffusionRaw <: PD
-	U::NestedOSV
-	V::NestedOSV
-	C::NestedOSV
-	s::OffsetVector{Float64}
-	t::OffsetVector{Float64}
-end
-
-struct FullDiffusionAngle <: PD
-	u::Function
-	v::Function
-	c::Function
-	ϕj::Float64
-	tmax::Float64
-end
-
-struct KNRDiffusionArc <: PD
+struct ArcLength <: PD
+	mode::String
 	u::Function
 	v::Function
 	c::Function
 	sj::Float64
-	S::Float64
+	smax::Float64
 	tmax::Float64
+
+	function ArcLength(raw::RawOutput)
+		s = parent(raw.s)
+		t = parent(raw.t)
+		U = hcat(raw.U...)
+
+		itp = interpolate(
+			(s, t), U,
+			Gridded(Linear())
+		)
+
+		sj = raw.s[raw.pj]
+		smax = raw.s[end]
+		tmax = raw.t[end]
+
+		function u(s, t)
+			s ∉ 0.0..smax && return 0.0
+			t ∉ 0.0..tmax && return NaN
+			return itp(s, t)
+		end
+
+		v(s::Real, t::Real) = 0 ≤ s ≤ sj ? u(s, t) : 0.0
+		c(s::Real, t::Real) = sj ≤ s ≤ smax ? u(s, t) : 0.0
+
+		return new(raw.mode, u, v, c, sj, smax, raw.t[end])
+	end
 end
 
-abstract type PDIntensity <: PD end
-
-struct FullDiffusionIntensity <: PDIntensity
-	I::Function
+struct Intensity
+	mode::String
+	u::Function
 	v::Function
 	c::Function
 	tmax::Float64
-end
 
-struct KNRDiffusionIntensity <: PDIntensity
-	I::Function
-	v::Function
-	c::Function
-	tmax::Float64
-end
+	function Intensity(raw::RawOutput, arc::ArcLength, R::Function, ω::Function)
+		uInt(s, t) = R(s) * sin(ω(s)) * arc.u(s, t)
+		vInt(s, t) = R(s) * sin(ω(s)) * arc.v(s, t)
+		cInt(s, t) = R(s) * sin(ω(s)) * arc.c(s, t)
 
-struct FullDiffusion <: PD
-	raw::FullDiffusionRaw
-	ang::FullDiffusionAngle
-	int::FullDiffusionIntensity
-end
-
-struct KNRDiffusion <: PD
-	raw::KNRDiffusionRaw
-	arc::KNRDiffusionArc
-	int::KNRDiffusionIntensity
+		I(t::Real) = quadgk(s -> uInt(s, t), raw.s...)[1]
+		Iv(t::Real) = quadgk(s -> vInt(s, t), raw.s[begin:raw.pj]...)[1]
+		Ic(t::Real) = quadgk(s -> cInt(s, t), raw.s[raw.pj:end]...)[1]
+		return new(arc.mode, I, Iv, Ic, arc.tmax)
+	end
 end
 
 struct Diffusion <: PD
-	f::FullDiffusion
-	k::KNRDiffusion
+	mode::String
+	raw::RawOutput
+	arc::ArcLength
+	int::Intensity
+
+	function Diffusion(raw, R, ω)
+		arc = ArcLength(raw)
+		int = Intensity(raw, arc, R, ω)
+		new(raw.mode, raw, arc, int)
+	end
 end

@@ -1,138 +1,71 @@
-Nt = 101
+Nt′ = 100
 
-## Full Fusion
-@recipe function f(raw::FullDiffusionRaw)
-	title := "Full Fusion: Raw Data"
-	yguide := "Relative Density"
-	xguide := "Polar Angle [rad]"
-	legend := false
-	
-	N = length(raw.t) - 1
-	T = raw.t[end]
-	ns = [
-		findnearest(raw.t, t)[1]
-		for t ∈ LinRange(0, T, Nt)
-	] |> unique |> sort
-	
-	color_palette := cgrad(:blues, length(ns))
+function xlim(raw::RawOutput)
+	X = 2raw.s[raw.pj]
+	Xdisp = round(100X/raw.s[end], digits = 2)
 
-	raw.ϕ, [raw.U[n] for n ∈ ns]
+	return X, Xdisp
 end
 
-function select_concentration_full_fusion(membrane, ang)
-	sys = (:system, :sys, :s)
-	ves = (:vesicle, :ves, :v)
-	cel = (:cell, :cel, :c)
+@recipe function plot(
+	raw::RawOutput;
+	title = "",
+	n = 0:min(Nt′, length(raw.U))-1)
 
-	if membrane ∉ (sys..., ves..., cel...)
-		error("Unrecognised name for membrane.")
-	end
-	
-	function concentration(s, t)
-		membrane ∈ sys && return ang.u(s, t)
-		membrane ∈ ves && return ang.v(s, t)
-		membrane ∈ cel && return ang.c(s, t)
-	end
-	
-	return [
-		s -> concentration(s, t)
-		for t = LinRange(0.0, ang.tmax, Nt)
-	]
-end
+	markerstrokewidth := 0
+	markersize := 3
 
-@recipe function f(
-	ang::FullDiffusionAngle,
-	membrane = :system;
-	xlim = (0, π),
-	ylim = (0, 1))
+	X, Xdisp = xlim(raw)
+	Nt = length(n)
 
-	title := "Full Fusion: WRT Angle"
+	xlims := (0, X)
+	ylims := (0, 1)
+
+	title := raw.mode * ": Raw Output (first $Nt timesteps)" * "\n$title Cell"^sign(length(title))
+	xguide := "Arc Length ($Xdisp% of domain)"
 	yguide := "Relative Concentration"
-	xguide := "Polar Angle [rad]"
 	legend := false
 
-	xlims := xlim
-	ylims := ylim
+	color_palette := palette(:blues, Nt)
 
-	color_palette := cgrad(:blues, Nt)
-
-	select_concentration_full_fusion(membrane, ang)
+	raw.s, raw.U[n]
 end
 
-## KNR Fusion
-@recipe function f(raw::KNRDiffusionRaw)
-	title := "KNR Fusion: Raw Data"
-	yguide := "Relative Density"
-	xguide := "Arc Length [rad]"
-	legend := false
-	
-	N = length(raw.t) - 1
-	T = raw.t[end]
-	ns = [
-		findnearest(raw.t, t)[1]
-		for t ∈ LinRange(0, T, Nt)
-	] |> unique |> sort
-	
-	color_palette := cgrad(:blues, length(ns))
+function xlim(arc::ArcLength)
+	X = 2arc.sj
+	Xdisp = round(100X/arc.smax, digits = 2)
+	Nt = min(Nt′, arc.tmax)
 
-	raw.s, [raw.U[n] for n ∈ ns]
+	return X, Xdisp, Nt
 end
 
-function select_concentration_knr_fusion(membrane, arc)
-	sys = (:system, :sys, :s)
-	ves = (:vesicle, :ves, :v)
-	cel = (:cell, :cel, :c)
+@recipe function plot(
+	arc::ArcLength;
+	title = "",
+	t = LinRange(0, arc.tmax, 100))
 
-	if membrane ∉ (sys..., ves..., cel...)
-		error("Unrecognised name for membrane.")
-	end
-
-	function concentration(s, t)
-		membrane ∈ sys && return arc.u(s, t)
-		membrane ∈ ves && return arc.v(s, t)
-		membrane ∈ cel && return arc.c(s, t)
-	end
+	X, Xdisp, Nt = xlim(arc)
 	
-	return [
-		s -> concentration(s, t)
-		for t = LinRange(0.0, arc.tmax, Nt)
-	]
-end
+	xlims := (0, X)
+	ylims := (0, 1)
 
-@recipe function f(
-	arc::KNRDiffusionArc,
-	membrane = :system;
-	xlim = (0, arc.S),
-	ylim = (0, 1))
-
-	title := "KNR Fusion: WRT Arc Length"
+	title := arc.mode * ": Interpolated Solution" * "\n$title Cell"^sign(length(title))
+	xguide := "Arc Length ($Xdisp% of domain)"
 	yguide := "Relative Concentration"
-	xguide := "Arc Length"
 	legend := false
+	
+	# color_palette := palette(:blues, Nt)
 
-	xlims := xlim
-	ylims := ylim
-
-	color_palette := cgrad(:blues, Nt)
-
-	select_concentration_knr_fusion(membrane, arc)
+	[s -> arc.u(s, t′) for t′ ∈ t]
 end
 
-function intensity_title(int::PDIntensity)
-	int isa FullDiffusionIntensity && return "Full Fusion: Intensity"
-	int isa KNRDiffusionIntensity && return "KNR Fusion: Intensity"
-	error("Unrecognised struct.")
-end
-
-## Both
-@recipe function f(int::PDIntensity)
-	title := intensity_title(int)
-	yguide := "Integrated Concentration"
-	xguide := "Time"
-	legend := :outerbottom
-	label := ["Total" "Vesicle" "Cell"]
-
+@recipe function plot(int::Intensity; title = "", membranes = [:u, :v, :c])
 	xlims := (0, int.tmax)
 
-	[int.I, int.v, int.c]
+	title := int.mode * ": Integrated Concentration" * "\n$title Cell"^sign(length(title))
+	xguide := "Time"
+	yguide := "Intensity"
+	label := ["Total" "Vesicle" "Cell"]
+
+	[getproperty(int, m) for m ∈ membranes]
 end

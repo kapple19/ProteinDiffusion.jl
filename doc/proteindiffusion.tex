@@ -9,6 +9,7 @@
 \usepackage{nicefrac}
 \usepackage{tabularx}
 \usepackage{parskip}
+\usepackage[hidelinks]{hyperref}
 
 \newcommand\Par[1]{{ \left({#1}\right) }}
 \newcommand\Brack[1]{{ \left[{#1}\right] }}
@@ -32,9 +33,23 @@
 
 \begin{document}
 \maketitle
+\tableofcontents
+
+\chapter*{Abstract}
+Protein delivery to a cell membrane consists of two alternative fusion modes that contrast in energy expenditure and resource-cost. Thus, identifying a cell's bias to either of the two modes can suggest the process acting in the cell. However, current experimental and observational methods for time-dependent fusion events are limited in resolution, obscuring the differences between the two modes. We model both modes, simulate over the parameters spaces of known values for mammalian cells, and compare the theoretical evolution of the fusion and diffusion process. Failure to distinguish the two modes in simulation with infinite resolution can suggest the impossibility in making distinctions with limited resolution. On the other hand, successful distinctions in simulations can suggest the type of observations that may provide further resolution of the process in the laboratory setting.
+
+\part{Protein and Cell Dynamics}
+
+\part{Mathematical Model}
+\chapter{Mathematical Background}
+The following description is of a model built on the theory of differential equations, Galerkin method, 
 
 \chapter{Diffusion}
+Protein delivery dynamics are here modelled as a scaled concentration diffusion on the surface of static membrane manifolds. Full fusion is modelled on the surface of a sphere, and kiss-and-run fusion on the surface of two truncated, connected spheres. The physical parameters involved in each model are derived from the pre-fusion cell and delivery vesicle parameters. The diffusion equation is then solved on the manifold defined by those parameters.
+
 \section{Conservation of Mass}
+The diffusion model assumes no source or sink for proteins, hence a conservation of mass expressed as follows.
+
 \begin{align*}
 	\pdv{u}{t} &= -\nabla \dotproduct \vec{J}
 \end{align*}
@@ -98,17 +113,37 @@ In spherical coordinates with azimuthal symmetry on the surface of a sphere,
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \\
 	\R^2 \int_\Omega \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) \dd\varphi &= \int_\Omega \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \dd\varphi \\
 	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= \Brack{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} w(\varphi)}_\Omega
-	- \int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi} \dd\varphi \\
-	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= -\int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi} \dd\varphi \\
-	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= - \frac{1}{2\pi \R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi}}
+	- \int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
+	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= -\int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
+	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= - \frac{1}{2\pi \R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
 \end{align*}
 yielding the weak form
 \begin{align*}
-	0 &= \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} + \frac{1}{\R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi}}
+	0 &= \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} + \frac{1}{\R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
 \end{align*}
 with total concentration
 \begin{align*}
 	\Angle{\bullet} &= 2\pi \R^2 \int_\Omega \sin(\varphi) \bullet \dd\varphi
+\end{align*}
+
+By foresight of the kiss-and-run fusion modelling, we parameterize the full fusion weak form by arc length.
+\begin{align*}
+	\varphi &= \frac{s(\varphi)}{\R}
+\end{align*}
+so
+\begin{align*}
+	\dd{\varphi} &= \frac{1}{\R} \dd{s} \\
+	\pdv{\varphi} &= \R \pdv{s}
+\end{align*}
+
+providing the new weak form
+\begin{align*}
+	0 &= \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} + \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
+\end{align*}
+with
+\begin{align*}
+	\omega(s) &= \frac{s}{\R} \\
+	\Angle\bullet &= 2\pi \R \int_\Gamma \sin\Par{\omega(s)} \bullet \dd{s}
 \end{align*}
 
 \chapter{Kiss-and-Run Fusion}
@@ -255,12 +290,12 @@ so our weak form becomes
 	+ D_c \int_{\Omega_c} \sin(\psi) \pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi} \dd\psi \\
 	0 &= \Rv \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{t} w(s) \dd{s}
 	+ \Rc \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{t} w(s) \dd{s} \\
-	&\quad+ D_v \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s} \dd{s} + D_c \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s} \dd{s} \\
-	0 &= \int_\Gamma \sin\Par{\omega(s)} \R(s) \pdv{u(s, t)}{t} w(s) + \int_\Gamma \sin\Par{\omega(s)} D(s) \pdv{u(s, t)}{s} \pdv{w(s)}{s} \dd{s}
+	&\quad+ D_v \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s} + D_c \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s} \\
+	0 &= \int_\Gamma \sin\Par{\omega(s)} \R(s) \pdv{u(s, t)}{t} w(s) + \int_\Gamma \sin\Par{\omega(s)} D(s) \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s}
 \end{align*}
 yielding our weak form in arc-length
 \begin{align*}
-	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{\R(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s}}
+	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{\R(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s}}
 \end{align*}
 with
 \begin{align*}
@@ -274,7 +309,7 @@ with
 \chapter{Finite Element Method}
 The finite element method expressed generically for the fusion modes of full and kiss-and-run takes a weak formulation
 \begin{align*}
-	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{R(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s}}
+	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{R(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s}}
 \end{align*}
 with
 \begin{align*}
@@ -341,6 +376,31 @@ Define
 so we have our system
 \begin{align*}
 	0 &= M \dv{\vec{U}(t)}{t} + S \vec{U}(t)
+\end{align*}
+
+\subsection{Taming Discontinuity}
+A Heaviside transition of parameter values is located at the junction in both fusion modes. An optimal selection of spatial grid spacing minimizes the possibility of violating the law of conservation. This motivates placing a large concentration of points around the junction point. The junction itself must also be a grid point.
+
+We apply cubic spacing on the vesicle and cell domains separately.
+
+The vesicular gridding must satisfy
+\begin{align*}
+	s_0 &= 0
+	s_{p_j} &= s_j
+\end{align*}
+and be concave down, which leads to
+\begin{align*}
+	s_p &= s_j \Par{1 - \Par{1 - \frac{p}{p_j}}^3}
+\end{align*}
+
+The cellular gridding similarly must satisfy
+\begin{align*}
+	s_{p_j} &= s_j \\
+	s_P &= s_P
+\end{align*}
+and must be concave up, leading to
+\begin{align*}
+	s_p &= s_j + \Par{s_P - s_j} \Par{\frac{p - p_j}{P - p_j}}^3
 \end{align*}
 
 \section{Temporal Discretisation}
@@ -450,5 +510,7 @@ yielding
 	&= 2\pi \int_{s_{p-1}}^{s_p} \D(s) \frac{-1}{h_p^2} \dd{s} \\
 	&= \frac{-2\pi}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s}
 \end{align*}
+
+\part{Mode Discernment}
 
 \end{document}
