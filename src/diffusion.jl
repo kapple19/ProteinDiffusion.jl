@@ -1,4 +1,4 @@
-struct Raw <: PD
+struct RawOutput <: PD
 	mode::String
 	s::OVector64
 	t::OVector64
@@ -6,7 +6,7 @@ struct Raw <: PD
 	pj::Int64
 end
 
-struct Arc <: PD
+struct ArcLength <: PD
 	mode::String
 	u::Function
 	v::Function
@@ -15,7 +15,7 @@ struct Arc <: PD
 	smax::Float64
 	tmax::Float64
 
-	function Arc(raw::Raw)
+	function ArcLength(raw::RawOutput)
 		s = parent(raw.s)
 		t = parent(raw.t)
 		U = hcat(raw.U...)
@@ -35,17 +35,41 @@ struct Arc <: PD
 			return itp(s, t)
 		end
 
-		v(s, t) = 0 ≤ s ≤ sj ? u(s, t) : 0.0
-		c(s, t) = sj ≤ s ≤ smax ? u(s, t) : 0.0
+		v(s::Real, t::Real) = 0 ≤ s ≤ sj ? u(s, t) : 0.0
+		c(s::Real, t::Real) = sj ≤ s ≤ smax ? u(s, t) : 0.0
 
 		return new(raw.mode, u, v, c, sj, smax, raw.t[end])
 	end
 end
 
+struct Intensity
+	mode::String
+	u::Function
+	v::Function
+	c::Function
+	tmax::Float64
+
+	function Intensity(raw::RawOutput, arc::ArcLength, R::Function, ω::Function)
+		uInt(s, t) = R(s) * sin(ω(s)) * arc.u(s, t)
+		vInt(s, t) = R(s) * sin(ω(s)) * arc.v(s, t)
+		cInt(s, t) = R(s) * sin(ω(s)) * arc.c(s, t)
+
+		I(t::Real) = quadgk(s -> uInt(s, t), raw.s...)[1]
+		Iv(t::Real) = quadgk(s -> vInt(s, t), raw.s[begin:raw.pj]...)[1]
+		Ic(t::Real) = quadgk(s -> cInt(s, t), raw.s[raw.pj:end]...)[1]
+		return new(arc.mode, I, Iv, Ic, arc.tmax)
+	end
+end
+
 struct Diffusion <: PD
 	mode::String
-	raw::Raw
-	arc::Arc
+	raw::RawOutput
+	arc::ArcLength
+	int::Intensity
 
-	Diffusion(raw) = new(raw.mode, raw, Arc(raw))
+	function Diffusion(raw, R, ω)
+		arc = ArcLength(raw)
+		int = Intensity(raw, arc, R, ω)
+		new(raw.mode, raw, arc, int)
+	end
 end

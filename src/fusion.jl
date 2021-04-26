@@ -21,9 +21,9 @@ function full_fusion(
 
 	s, t, U, pj = diffusion_fem(sj, sP, ω, R, D, u∞)
 
-	raw = Raw("Full Fusion", s, t, U, pj)
+	raw = RawOutput("Full Fusion", s, t, U, pj)
 
-	return Diffusion(raw)
+	return Diffusion(raw, R, ω)
 end
 
 function knr_fusion(
@@ -55,9 +55,9 @@ function knr_fusion(
 
 	s, t, U, pj = diffusion_fem(sj, sP, ω, R, D, u∞)
 
-	raw = Raw("KNR Fusion", s, t, U, pj)
+	raw = RawOutput("KNR Fusion", s, t, U, pj)
 
-	return Diffusion(raw)
+	return Diffusion(raw, R, ω)
 end
 
 function fusion(

@@ -9,12 +9,12 @@ Dv = 1.0
 Dc = 0.2
 
 f = full_fusion(Rv, Rc, Dv, Dc)
-k = knr_fusion(Rv, Rc, Rj, Dv, Dc)
 
 ##
 R = √(Rv^2 + Rc^2)
 ztoϕ(z) = acos(z/R)
-uz(z, t) = f.ang.u(z |> ztoϕ, t)
+ϕtos(ϕ) = R * ϕ
+uz(z, t) = f.arc.u(z |> ztoϕ |> ϕtos, t)
 z = R*LinRange(1, -1, 101)
 
 using GLMakie
@@ -33,10 +33,10 @@ function col(t)
 	c
 end
 
-T = f.ang.tmax/10
+T = f.arc.tmax/10
 record(
 	fig,
-	"img/generic_3danim.gif",
+	"anim/unrealistic_3d.gif",
 	LinRange(0, T, 21),
 	compression = 51,
 	framerate = 6) do t

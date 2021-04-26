@@ -28,55 +28,24 @@ function diffusion_fem(
 	R′(s) = R(s) * sin(ω(s))
 	D′(s) = D(s) * sin(ω(s))
 
-	# function Mdiag_lo_fcn(p::Integer)
-	# 	p ∈ 1:P && return h[p] * (R′(s[p]) + 2R′((s[p-1] + s[p])/2))
-	# 	return 0.0
-	# end
-
-	# function Mdiag_hi_fcn(p::Integer)
-	# 	p ∈ 0:P-1 && return h[p+1] * (R′(s[p]) + 2R′((s[p] + s[p+1])/2))
-	# 	return 0.0
-	# end
-
-	# function Sdiag_lo_fcn(p::Integer)
-	# 	p ∈ 1:P && return h[p]^2 \ quadgk(D′, s[p-1], s[p])[1]
-	# 	return 0.0
-	# end
-	
-	# function Sdiag_hi_fcn(p::Integer)
-	# 	p ∈ 0:P-1 && h[p+1]^2 \ quadgk(D′, s[p], s[p+1])[1]
-	# 	return 0.0
-	# end
-
-	# Mdiag_lo = [Mdiag_lo_fcn(p) for p ∈ 0:P]
-	# Mdiag_hi = [Mdiag_hi_fcn(p) for p ∈ 0:P]
-	# Mdiag = 3\(Mdiag_lo + Mdiag_hi)
-	# Moffd = 3\[h[p] * R′((s[p-1] + s[p])/2) for p ∈ 1:P]
-	# M = SymTridiagonal(Mdiag, Moffd)
-
-	# Sdiag_lo = [Sdiag_lo_fcn(p) for p ∈ 0:P]
-	# Sdiag_hi = [Sdiag_hi_fcn(p) for p ∈ 0:P]
-	# Sdiag = 2*(Sdiag_lo + Sdiag_hi)
-	# Soffd = -2 * [h[p]^2 \ quadgk(D′, s[p-1], s[p])[1] for p ∈ 1:P]
-	# S = SymTridiagonal(Sdiag, Soffd)
-
 	Mdiag_lo_fcn(p) = p ∈ 1:P ? h[p] * (R′(s[p]) + 2R′((s[p-1] + s[p])/2)) : 0.0
-	Mdiag_lo = [Mdiag_lo_fcn(p) for p ∈ 0:P]
 	Mdiag_hi_fcn(p) = p ∈ 0:P-1 ? h[p+1] * (R′(s[p]) + 2R′((s[p] + s[p+1])/2)) : 0.0
+	Sdiag_lo_fcn(p) = p ∈ 1:P ? h[p]^2 \ quadgk(D′, s[p-1], s[p])[1] : 0.0
+	Sdiag_hi_fcn(p) = p ∈ 0:P-1 ? h[p+1]^2 \ quadgk(D′, s[p], s[p+1])[1] : 0.0
+
+	Mdiag_lo = [Mdiag_lo_fcn(p) for p ∈ 0:P]
 	Mdiag_hi = [Mdiag_hi_fcn(p) for p ∈ 0:P]
 	Mdiag = 3\(Mdiag_lo + Mdiag_hi)
 	Moffd = 3\[h[p] * R′((s[p-1] + s[p])/2) for p ∈ 1:P]
 	M = SymTridiagonal(Mdiag, Moffd)
 
-	Sdiag_lo_fcn(p) = p ∈ 1:P ? h[p]^2 \ quadgk(D′, s[p-1], s[p])[1] : 0.0
 	Sdiag_lo = [Sdiag_lo_fcn(p) for p ∈ 0:P]
-	Sdiag_hi_fcn(p) = p ∈ 0:P-1 ? h[p+1]^2 \ quadgk(D′, s[p], s[p+1])[1] : 0.0
 	Sdiag_hi = [Sdiag_hi_fcn(p) for p ∈ 0:P]
 	Sdiag = 2*(Sdiag_lo + Sdiag_hi)
 	Soffd = -2 * [h[p]^2 \ quadgk(D′, s[p-1], s[p])[1] for p ∈ 1:P]
 	S = SymTridiagonal(Sdiag, Soffd)
 
-	## Solving Matrix Equation
+	# Solving Matrix Equation
 	diffuse!(U, Δtn) = push!(
 		U, OffsetArray(
 			(parent(M) + Δtn * parent(S)) \ (parent(M) * parent(U[end])),
@@ -84,8 +53,7 @@ function diffusion_fem(
 		)
 	)
 
-	R²(s) = R(s)^2
-	Δt′ = R²(0.0) * R²(sP) / D(0.0) / D(sP) / 1e4
+	Δt′ = R(0.0) * R(sP) / D(0.0) / D(sP) / 1e4
 	tol = 1e-3
 	t = OffsetArray([0.0], Origin(0))
 	U = OffsetArray([H.(sj .- s)], Origin(0))
