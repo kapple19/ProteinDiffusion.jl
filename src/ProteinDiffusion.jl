@@ -1,26 +1,21 @@
 module ProteinDiffusion
-using OffsetArrays: OffsetArray, OffsetVector, Origin
-using LinearAlgebra: SymTridiagonal
-using QuadGK: quadgk
-using Interpolations: Gridded, Linear, interpolate
-using Plots: cgrad, palette
-using RecipesBase
+
+import OffsetArrays: OffsetArray, OffsetVector, Origin
+import LinearAlgebra: SymTridiagonal
+import QuadGK: quadgk
+import Interpolations: Gridded, Linear, interpolate
+import Plots: palette
+import RecipesBase: RecipesBase, @recipe
 
 export full_fusion
 export knr_fusion
 export fusion
 
-abstract type PD <: Any end
-
-function Base.show(io::IO, pd::PD)
-	println(io, pd |> typeof |> string)
-	println(io, pd |> propertynames |> string)
-end
-
+include("preamble.jl")
 include("auxiliary.jl")
 include("fem.jl")
-include("diffusion.jl")
 include("fusion.jl")
+include("diffusion.jl")
 include("plot.jl")
 
-end
+end # module

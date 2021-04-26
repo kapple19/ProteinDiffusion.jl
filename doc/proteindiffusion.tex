@@ -113,17 +113,37 @@ In spherical coordinates with azimuthal symmetry on the surface of a sphere,
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \\
 	\R^2 \int_\Omega \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) \dd\varphi &= \int_\Omega \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \dd\varphi \\
 	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= \Brack{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} w(\varphi)}_\Omega
-	- \int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi} \dd\varphi \\
-	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= -\int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi} \dd\varphi \\
-	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= - \frac{1}{2\pi \R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi}}
+	- \int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
+	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= -\int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
+	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= - \frac{1}{2\pi \R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
 \end{align*}
 yielding the weak form
 \begin{align*}
-	0 &= \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} + \frac{1}{\R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \pdv{w(\varphi)}{\varphi}}
+	0 &= \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} + \frac{1}{\R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
 \end{align*}
 with total concentration
 \begin{align*}
 	\Angle{\bullet} &= 2\pi \R^2 \int_\Omega \sin(\varphi) \bullet \dd\varphi
+\end{align*}
+
+By foresight of the kiss-and-run fusion modelling, we parameterize the full fusion weak form by arc length.
+\begin{align*}
+	\varphi &= \frac{s(\varphi)}{\R}
+\end{align*}
+so
+\begin{align*}
+	\dd{\varphi} &= \frac{1}{\R} \dd{s} \\
+	\pdv{\varphi} &= \R \pdv{s}
+\end{align*}
+
+providing the new weak form
+\begin{align*}
+	0 &= \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} + \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
+\end{align*}
+with
+\begin{align*}
+	\omega(s) &= \frac{s}{\R} \\
+	\Angle\bullet &= 2\pi \R \int_\Gamma \sin\Par{\omega(s)} \bullet \dd{s}
 \end{align*}
 
 \chapter{Kiss-and-Run Fusion}
@@ -270,12 +290,12 @@ so our weak form becomes
 	+ D_c \int_{\Omega_c} \sin(\psi) \pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi} \dd\psi \\
 	0 &= \Rv \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{t} w(s) \dd{s}
 	+ \Rc \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{t} w(s) \dd{s} \\
-	&\quad+ D_v \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s} \dd{s} + D_c \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s} \dd{s} \\
-	0 &= \int_\Gamma \sin\Par{\omega(s)} \R(s) \pdv{u(s, t)}{t} w(s) + \int_\Gamma \sin\Par{\omega(s)} D(s) \pdv{u(s, t)}{s} \pdv{w(s)}{s} \dd{s}
+	&\quad+ D_v \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s} + D_c \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s} \\
+	0 &= \int_\Gamma \sin\Par{\omega(s)} \R(s) \pdv{u(s, t)}{t} w(s) + \int_\Gamma \sin\Par{\omega(s)} D(s) \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s}
 \end{align*}
 yielding our weak form in arc-length
 \begin{align*}
-	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{\R(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s}}
+	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{\R(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s}}
 \end{align*}
 with
 \begin{align*}
@@ -289,7 +309,7 @@ with
 \chapter{Finite Element Method}
 The finite element method expressed generically for the fusion modes of full and kiss-and-run takes a weak formulation
 \begin{align*}
-	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{R(s)} \pdv{u(s, t)}{s} \pdv{w(s)}{s}}
+	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{R(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s}}
 \end{align*}
 with
 \begin{align*}

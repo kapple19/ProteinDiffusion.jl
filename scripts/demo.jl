@@ -2,52 +2,45 @@
 using ProteinDiffusion
 using Plots
 
-function run_demo(Rv, Rc, Rj, Dv, Dc, name::String)
-	# Run Models
-	pd = fusion(Rv, Rc, Rj, Dv, Dc)
+cell_pars = (
+	unreal = (
+		Rv = 1.0,
+		Rc = 2.0,
+		Rj = 0.4,
+		Dv = 1.0,
+		Dc = 0.2
+	),
+	beta = (
+		Rv = 150e-3, # [μm] insulin vesicles
+		Rc = 4.0, # [μm] β-cells
+		Rj = 50e-3,
+		Dv = 1.0,
+		Dc = 0.2
+	),
+	adipocyte = (
+		Rv = 75e-3, # [μm] GLUT4 vesicles
+		Rc = 17.0, # [μm] adipocytes (smaller of bimodal size distribution)
+		Rj = 60e-3, # [μm] pore junction radius
+		Dv = 1.0,
+		Dc = 0.2
+	)	
+)
 
-	# Plot Results
-	pfang = plot(pd.f.ang)
-	pfint = plot(pd.f.int)
-	pkarc = plot(pd.k.arc)
-	pkint = plot(pd.k.int)
+function run_demo(cell_type::Symbol)
+	Rv, Rc, Rj, Dv, Dc = getproperty(cell_pars, cell_type)
 
-	display(pfang)
-	display(pfint)
-	display(pkarc)
-	display(pkint)
+	f, k = fusion(Rv, Rc, Rj, Dv, Dc)
 
-	savefig(pfang, "img/" * name * "_fullfusion_ang.png")
-	savefig(pfint, "img/" * name * "_fullfusion_int.png")
-	savefig(pkarc, "img/" * name * "_knrfusion_arc.png")
-	savefig(pkint, "img/" * name * "_knrfusion_int.png")
+	pfraw = plot(f.raw)
+	pkraw = plot(k.raw)
 
-	pd
+	pfraw |> display
+	pkraw |> display
 end
 
-## Generic
-Rv = 1.0
-Rc = 2.0
-Rj = 0.4
-Dv = 1.0
-Dc = 0.2
+## Run Examples
+run_demo(:unreal)
+run_demo(:beta)
+run_demo(:adipocyte)
 
-pdgen = run_demo(Rv, Rc, Rj, Dv, Dc, "generic")
-
-## β-cells
-Rv = 150e-3 # [μm] insulin vesicles
-Rc = 4.0 # [μm] β-cells
-Rj = 50e-3
-Dv = 1e-4
-Dc = 0.2
-
-pdbeta = run_demo(Rv, Rc, Rj, Dv, Dc, "betacells")
-
-## Adipocytes
-Rv = 75e-3 # [μm] GLUT4 vesicles
-Rc = 17.0 # [μm] adipocytes (smaller of bimodal size distribution)
-Rj = Rv/2 # [μm] pore junction radius
-Dv = 1e-4
-Dc = 1e-2
-
-pdadip = run_demo(Rv, Rc, Rj, Dv, Dc, "adipocytes")
+##
