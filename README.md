@@ -88,9 +88,6 @@ plot(k.int)
 
 The raw output data is stored in `k.raw` and can also be plotted as above.
 
-### Interactive Pluto Script
-TODO
-
 ## Model Details
 As detailed in the [documentation][doc]:
 1. The full fusion and kiss-and-run fusion models consist of diffusion on a sphere and on connected spheres respectively.

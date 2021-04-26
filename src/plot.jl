@@ -54,7 +54,7 @@ end
 	yguide := "Relative Concentration"
 	legend := false
 	
-	# color_palette := palette(:blues, Nt)
+	color_palette := palette(:blues, length(t))
 
 	[s -> arc.u(s, t′) for t′ ∈ t]
 end
