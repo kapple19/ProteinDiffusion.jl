@@ -4,6 +4,7 @@ import OffsetArrays: OffsetArray, OffsetVector, Origin
 import LinearAlgebra: SymTridiagonal
 import QuadGK: quadgk
 import Interpolations: Gridded, Linear, interpolate
+import IntervalArithmetic: (..)
 import Plots: palette
 import RecipesBase: RecipesBase, @recipe
 

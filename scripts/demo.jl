@@ -32,10 +32,16 @@ function run_demo(cell_type::Symbol)
 	f, k = fusion(Rv, Rc, Rj, Dv, Dc)
 
 	pfraw = plot(f.raw)
+	pfarc = plot(f.arc)
 	pkraw = plot(k.raw)
+	pkarc = plot(k.arc)
 
-	pfraw |> display
-	pkraw |> display
+	display.(
+		[
+			pfraw, pfarc,
+			pkraw, pkarc
+		]
+	)
 end
 
 ## Run Examples

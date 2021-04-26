@@ -23,7 +23,7 @@ function full_fusion(
 
 	raw = Raw("Full Fusion", s, t, U, pj)
 
-	return Diffusion(raw.fusion, raw)
+	return Diffusion(raw)
 end
 
 function knr_fusion(
@@ -57,7 +57,7 @@ function knr_fusion(
 
 	raw = Raw("KNR Fusion", s, t, U, pj)
 
-	return Diffusion(raw.fusion, raw)
+	return Diffusion(raw)
 end
 
 function fusion(
