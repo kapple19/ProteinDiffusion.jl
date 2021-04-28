@@ -106,10 +106,9 @@ struct Intensity
 			return itp_(t)
 		end
 
-		u(t) = itp(t, U)
 		v(t) = itp(t, V)
 		c(t) = itp(t, C)
-		# u(t) = v(t) + c(t)
+		u(t) = v(t) + c(t)
 
 		return new(raw.mode, u, v, c, raw.t[end])
 	end

@@ -31,13 +31,13 @@ function run_demo(CellType::Symbol)
 
 	f, k = fusion(Rv, Rc, Rj, Dv, Dc)
 
-	pfraw = plot(f.raw, title = string(CellType) * " Cell")
-	pfarc = plot(f.arc, title = string(CellType) * " Cell")
-	@time pfint = plot(f.int, title = string(CellType) * " Cell")
+	pfraw = plot(f.raw, title = string(CellType))
+	pfarc = plot(f.arc, title = string(CellType))
+	@time pfint = plot(f.int, title = string(CellType))
 
-	pkraw = plot(k.raw, title = string(CellType) * " Cell")
-	pkarc = plot(k.arc, title = string(CellType) * " Cell")
-	@time pkint = plot(k.int, title = string(CellType) * " Cell")
+	pkraw = plot(k.raw, title = string(CellType))
+	pkarc = plot(k.arc, title = string(CellType))
+	@time pkint = plot(k.int, title = string(CellType))
 
 	display.(
 		[
