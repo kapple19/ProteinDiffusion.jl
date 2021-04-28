@@ -126,6 +126,7 @@ with total concentration
 	\Angle{\bullet} &= 2\pi \R^2 \int_\Omega \sin(\varphi) \bullet \dd\varphi
 \end{align*}
 
+\subsection{Parameterisation by Arc Length}
 By foresight of the kiss-and-run fusion modelling, we parameterize the full fusion weak form by arc length.
 \begin{align*}
 	\varphi &= \frac{s(\varphi)}{\R}
@@ -511,6 +512,12 @@ yielding
 	&= \frac{-2\pi}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s}
 \end{align*}
 
+\part{Implementation}
+\chapter{API}
+\chapter{Model Usage}
+Due to the diminutive nature of cells and vesicles, the model implementation would require a very small stepping size. Fortunately, the units used in the model only require consistency, thus input units are specified when used.
+
 \part{Mode Discernment}
+\chapter{Family of Curves}
 
 \end{document}

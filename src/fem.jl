@@ -53,7 +53,8 @@ function diffusion_fem(
 		)
 	)
 
-	Δt′ = R(0.0) * R(sP) / D(0.0) / D(sP) / 1e4
+	R²(s) = R(s)^2
+	Δt′ = R²(0.0) * R²(sP) / D(0.0) / D(sP) / 1e4
 	tol = 1e-3
 	t = OffsetArray([0.0], Origin(0))
 	U = OffsetArray([H.(sj .- s)], Origin(0))

@@ -42,6 +42,27 @@ struct ArcLength <: PD
 	end
 end
 
+# struct Intensity
+# 	mode::String
+# 	u::Function
+# 	v::Function
+# 	c::Function
+# 	tmax::Float64
+
+# 	function Intensity(raw::RawOutput, arc::ArcLength, R::Function, ω::Function)
+# 		uInt(s, t) = R(s) * sin(ω(s)) * arc.u(s, t)
+# 		vInt(s, t) = R(s) * sin(ω(s)) * arc.v(s, t)
+# 		cInt(s, t) = R(s) * sin(ω(s)) * arc.c(s, t)
+
+# 		sInt = [0.0, arc.sj, arc.smax]
+# 		I(t::Real) = quadgk(s -> uInt(s, t), sInt...)[1]
+# 		Iv(t::Real) = quadgk(s -> vInt(s, t), sInt...)[1]
+# 		Ic(t::Real) = quadgk(s -> cInt(s, t), sInt...)[1]
+		
+# 		return new(arc.mode, I, Iv, Ic, arc.tmax)
+# 	end
+# end
+
 struct Intensity
 	mode::String
 	u::Function
@@ -49,15 +70,50 @@ struct Intensity
 	c::Function
 	tmax::Float64
 
-	function Intensity(raw::RawOutput, arc::ArcLength, R::Function, ω::Function)
-		uInt(s, t) = R(s) * sin(ω(s)) * arc.u(s, t)
-		vInt(s, t) = R(s) * sin(ω(s)) * arc.v(s, t)
-		cInt(s, t) = R(s) * sin(ω(s)) * arc.c(s, t)
+	function Intensity(
+		raw::RawOutput,
+		arc::ArcLength,
+		R::Function,
+		ω::Function)
 
-		I(t::Real) = quadgk(s -> uInt(s, t), raw.s...)[1]
-		Iv(t::Real) = quadgk(s -> vInt(s, t), raw.s[begin:raw.pj]...)[1]
-		Ic(t::Real) = quadgk(s -> cInt(s, t), raw.s[raw.pj:end]...)[1]
-		return new(arc.mode, I, Iv, Ic, arc.tmax)
+		pj = raw.pj
+		P = lastindex(raw.s)
+		N = lastindex(raw.t)
+
+		Uint = OffsetArray(
+			[
+				OffsetArray(
+					[
+						R(raw.s[p]) * sin(ω(raw.s[p])) * raw.U[n][p]
+						for p ∈ 0:P
+					],
+					Origin(0)
+				) for n ∈ 0:N
+			],
+			Origin(0)
+		)
+
+		U = [integrate(raw.s, Uint[n]) for n ∈ eachindex(raw.t)]
+		V = [integrate(raw.s[0:pj], Uint[n][0:pj]) for n ∈ eachindex(raw.t)]
+		C = [integrate(raw.s[pj:P], Uint[n][pj:P]) for n ∈ eachindex(raw.t)]
+		
+		@show length(raw.t)
+		@show length(U)
+
+		function itp(t, U)
+			itp_ = LinearInterpolation(
+				raw.t |> parent,
+				U |> parent
+			)
+
+			return itp_(t)
+		end
+
+		u(t) = itp(t, U)
+		v(t) = itp(t, V)
+		c(t) = itp(t, C)
+
+		return new(raw.mode, u, v, c, raw.t[end])
 	end
 end
 

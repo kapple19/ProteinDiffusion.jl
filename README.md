@@ -96,6 +96,14 @@ As detailed in the [documentation][doc]:
 4. Due to stiffness, a backward Euler method discretizes the resulting ODE system.
 5. The solved dynamics are interpolated into a function.
 
+## Development Roadmap
+* Decrease timestepping (especially for integration, becomes visibly piecewise-linear).
+* Reduce computation time for integration.
+* Parse for valid inputs.
+* Create comparison structure/function.
+* Compute fusion spot radius.
+* Simulate pixellation.
+
 ## References
 
 [doc]: ./doc/proteindiffusion.pdf

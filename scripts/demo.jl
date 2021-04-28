@@ -11,11 +11,11 @@ cell_pars = (
 		Dc = 0.2
 	),
 	Beta = (
-		Rv = 150e-3, # [μm] insulin vesicles
-		Rc = 4.0, # [μm] β-cells
-		Rj = 50e-3,
-		Dv = 1.0,
-		Dc = 0.2
+		Rv = 150.0, # [μm] insulin vesicles
+		Rc = 4.0e3, # [μm] β-cells
+		Rj = 50.0,
+		Dv = 1e3,
+		Dc = 2e2
 	),
 	Adipocyte = (
 		Rv = 75e-3, # [μm] GLUT4 vesicles
@@ -33,11 +33,11 @@ function run_demo(CellType::Symbol)
 
 	pfraw = plot(f.raw, title = string(CellType) * " Cell")
 	pfarc = plot(f.arc, title = string(CellType) * " Cell")
-	pfint = plot(f.int, title = string(CellType) * " Cell")
+	@time pfint = plot(f.int, title = string(CellType) * " Cell")
 
 	pkraw = plot(k.raw, title = string(CellType) * " Cell")
 	pkarc = plot(k.arc, title = string(CellType) * " Cell")
-	pkint = plot(k.int, title = string(CellType) * " Cell")
+	@time pkint = plot(k.int, title = string(CellType) * " Cell")
 
 	display.(
 		[
@@ -60,3 +60,17 @@ end
 run_demo(:Unrealistic)
 run_demo(:Beta)
 run_demo(:Adipocyte)
+
+##
+Rv = 150.0
+Rc = 4e3
+Rj = 50.0
+Dv = 1e3
+Dc = 2e2
+
+@time f = full_fusion(Rv, Rc, Dv, Dc)
+
+##
+@time plot(f.int)
+
+##
