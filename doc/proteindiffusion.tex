@@ -38,11 +38,25 @@
 \chapter*{Abstract}
 Protein delivery to a cell membrane consists of two alternative fusion modes that contrast in energy expenditure and resource-cost. Thus, identifying a cell's bias to either of the two modes can suggest the process acting in the cell. However, current experimental and observational methods for time-dependent fusion events are limited in resolution, obscuring the differences between the two modes. We model both modes, simulate over the parameters spaces of known values for mammalian cells, and compare the theoretical evolution of the fusion and diffusion process. Failure to distinguish the two modes in simulation with infinite resolution can suggest the impossibility in making distinctions with limited resolution. On the other hand, successful distinctions in simulations can suggest the type of observations that may provide further resolution of the process in the laboratory setting.
 
-\part{Protein and Cell Dynamics}
+\part{Cell and Protein Dynamics}
+\chapter{Structure}
+\section{Cells}
+\section{Vesicles}
+\section{Proteins}
+
+\chapter{Dynamics}
+\section{Fusion}
+\section{Diffusion}
+
+\chapter{Observations}
+\section{TIRF Microscopy}
+\section{Electron Micrography}
 
 \part{Mathematical Model}
-\chapter{Mathematical Background}
-The following description is of a model built on the theory of differential equations, Galerkin method, 
+\section{Mathematical Background}
+The following description is of a model built on the theory of differential equations, finite element method, 
+
+The mathematical symbols utilized for model derivation and expression are consistently used as given in table TODO.
 
 \chapter{Diffusion}
 Protein delivery dynamics are here modelled as a scaled concentration diffusion on the surface of static membrane manifolds. Full fusion is modelled on the surface of a sphere, and kiss-and-run fusion on the surface of two truncated, connected spheres. The physical parameters involved in each model are derived from the pre-fusion cell and delivery vesicle parameters. The diffusion equation is then solved on the manifold defined by those parameters.
@@ -106,6 +120,9 @@ In spherical coordinates with azimuthal symmetry on the surface of a sphere,
 	& \varphi &\in \Omega
 	& t &\in \bbR_0^+
 \end{align*}
+
+\section{Analytical Solution}
+The frontier of analytical solution methods for the diffusion problem specified above involves constant diffusivity.
 
 \section{Weak Form}
 \begin{align*}
@@ -512,12 +529,34 @@ yielding
 	&= \frac{-2\pi}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s}
 \end{align*}
 
+\chapter{TIRF Microscopy Model}
+The final component of the intended model incorporation of parameters involved in TIRF Microscopy which limit the resolution of observations for fusion and diffusion dynamics in space and time.
+
 \part{Implementation}
 \chapter{API}
+\section{Fusion Modes}
+\section{Diffusion}
+\section{Intensity}
+\subsection{Point Spread Function}
+\subsection{TIRF Zone}
+\subsection{Spot Intensity}
+\subsection{Ring Intensity}
+
 \chapter{Model Usage}
 Due to the diminutive nature of cells and vesicles, the model implementation would require a very small stepping size. Fortunately, the units used in the model only require consistency, thus input units are specified when used.
 
 \part{Mode Discernment}
-\chapter{Family of Curves}
+\chapter{Total Concentration on Fused Vesicle Membrane}
+One metric in the theoretical space is the 
+
+\chapter{TIRF Microscopy Simulation}
+\chapter{Regional Intensity}
+\section{Spot Intensity}
+\section{Ring Intensity}
+\section{Point Spread}
+\section{TIRF Zone}
+\section{Frame Rate}
+
+\chapter{Discernment}
 
 \end{document}

@@ -97,12 +97,27 @@ As detailed in the [documentation][doc]:
 5. The solved dynamics are interpolated into a function.
 
 ## Development Roadmap
+* Develop tests for known analytic solutions.
 * Decrease timestepping (especially for integration, becomes visibly piecewise-linear).
 * Reduce computation time for integration.
 * Parse for valid inputs.
 * Create comparison structure/function.
 * Compute fusion spot radius.
 * Simulate pixellation.
+
+### Discussion
+* TIRF Microscopy method research.
+  * Pixel sizes.
+  * TIRF zone.
+  * Frequency and incident angle of light source.
+* Point spread functions.
+* Spot radius is the pre-fusion vesicle radius.
+* Ring size "same" as spot radius.
+* Family of curves.
+* Is diffusion slow because of KNR or because of diffusivity?
+* Photo taking bleaches the proteins.
+  * Lots of early photos.
+  * Photos spread out.
 
 ## References
 

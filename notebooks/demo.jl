@@ -57,24 +57,32 @@ plot(
 	layout = (1, 2)
 )
 
+# ╔═╡ b9f3acb7-7c03-4ebc-b335-763a7a7082ba
+plot(f.raw)
+
 # ╔═╡ 15460682-a64a-41d6-934c-c66f2fb40f75
 plot(f.int)
 
 # ╔═╡ de169125-f359-408c-83af-5aebb5fcf2cc
 plot(k.int)
 
+# ╔═╡ 6eba6fb4-db81-45cc-b002-f47edfef0992
+k.int.u(10)
+
 # ╔═╡ Cell order:
 # ╠═fc567100-a675-11eb-1f44-f1a8c9822102
-# ╠═1c479d20-2611-4a9e-975b-aaf7dbf867f0
+# ╟─1c479d20-2611-4a9e-975b-aaf7dbf867f0
 # ╟─3d9cd9a3-a595-4b40-af33-76cedc7bfde1
-# ╠═90454198-763c-48cb-9bc7-9c2f57b0d9b4
+# ╟─90454198-763c-48cb-9bc7-9c2f57b0d9b4
 # ╟─bf481f6d-44e9-4a9b-8cbd-0950e0e5fad4
-# ╠═d295c4f2-cd80-4d86-9c8c-17f6ec9dbc9d
+# ╟─d295c4f2-cd80-4d86-9c8c-17f6ec9dbc9d
 # ╟─f5236744-0e1e-4b99-92c8-b2a7c0279186
 # ╟─12ccf1c2-de78-4528-bf7e-d078360a2dae
 # ╟─52fdd5b0-bb92-464d-a79b-5f956441528a
 # ╠═32a76355-0e85-48e8-8a98-dc209398e34c
 # ╠═8d61f6cc-784e-4cc8-9e21-070da8c84a1b
 # ╠═60719c7d-8e19-4cdf-aeda-3ff83f446922
+# ╠═b9f3acb7-7c03-4ebc-b335-763a7a7082ba
 # ╠═15460682-a64a-41d6-934c-c66f2fb40f75
 # ╠═de169125-f359-408c-83af-5aebb5fcf2cc
+# ╠═6eba6fb4-db81-45cc-b002-f47edfef0992

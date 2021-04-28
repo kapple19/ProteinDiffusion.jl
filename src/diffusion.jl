@@ -93,13 +93,10 @@ struct Intensity
 			Origin(0)
 		)
 
-		U = [integrate(raw.s, Uint[n]) for n ∈ eachindex(raw.t)]
+		U = [integrate(raw.s[0:P], Uint[n][:]) for n ∈ eachindex(raw.t)]
 		V = [integrate(raw.s[0:pj], Uint[n][0:pj]) for n ∈ eachindex(raw.t)]
 		C = [integrate(raw.s[pj:P], Uint[n][pj:P]) for n ∈ eachindex(raw.t)]
 		
-		@show length(raw.t)
-		@show length(U)
-
 		function itp(t, U)
 			itp_ = LinearInterpolation(
 				raw.t |> parent,
@@ -112,6 +109,7 @@ struct Intensity
 		u(t) = itp(t, U)
 		v(t) = itp(t, V)
 		c(t) = itp(t, C)
+		# u(t) = v(t) + c(t)
 
 		return new(raw.mode, u, v, c, raw.t[end])
 	end

@@ -74,3 +74,15 @@ Dc = 2e2
 @time plot(f.int)
 
 ##
+Rv = 10.0
+Rc = 10.0
+Rj = 10.0
+Dv = 10.0
+Dc = 10.0
+
+@time k = knr_fusion(Rv, Rc, Rj, Dv, Dc)
+
+##
+plot(k.int)
+
+##
