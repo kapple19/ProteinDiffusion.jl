@@ -73,7 +73,7 @@ function diffusion_fem(
 			conv = true
 		end
 		
-		if maximum(U[end] .- 0.5) > 2
+		if maximum(abs.(U[end] .- 0.5)) > 2
 			error("Unstable.")
 		end
 		

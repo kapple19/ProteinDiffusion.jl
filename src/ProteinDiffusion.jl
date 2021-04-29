@@ -1,24 +1,32 @@
 module ProteinDiffusion
 
-import OffsetArrays: OffsetArray, OffsetVector, Origin
+import OffsetArrays:
+	OffsetArray,
+	OffsetVector,
+	Origin
 import LinearAlgebra: SymTridiagonal
 import QuadGK: quadgk
 import NumericalIntegration: integrate
-import Interpolations: interpolate, Gridded, LinearInterpolation, Linear
+import Interpolations:
+	interpolate,
+	Gridded,
+	LinearInterpolation,
+	Linear
 import IntervalArithmetic: (..)
 import Plots: palette
-import RecipesBase: RecipesBase, @recipe
+import RecipesBase:
+	RecipesBase,
+	@recipe
 
-export full_fusion
-export knr_fusion
-export fusion
-export Comparison
+export Membrane
+export FullFusion
+export KNRFusion
 
 include("preamble.jl")
 include("auxiliary.jl")
 include("fem.jl")
-include("fusion.jl")
 include("diffusion.jl")
+include("fusion.jl")
 include("plot.jl")
 
 end # module

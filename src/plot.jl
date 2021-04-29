@@ -1,3 +1,11 @@
+@recipe function plot(mem::Membrane)
+	ϕ = LinRange(0, 2π, 101)
+
+	x = mem.R * cos.(ϕ)
+	z = mem.R * sin.(ϕ)
+
+	x, z
+end
 Nt′ = 100
 
 function xlim(raw::RawOutput)

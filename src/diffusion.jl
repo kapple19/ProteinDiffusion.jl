@@ -42,28 +42,7 @@ struct ArcLength <: PD
 	end
 end
 
-# struct Intensity
-# 	mode::String
-# 	u::Function
-# 	v::Function
-# 	c::Function
-# 	tmax::Float64
-
-# 	function Intensity(raw::RawOutput, arc::ArcLength, R::Function, ω::Function)
-# 		uInt(s, t) = R(s) * sin(ω(s)) * arc.u(s, t)
-# 		vInt(s, t) = R(s) * sin(ω(s)) * arc.v(s, t)
-# 		cInt(s, t) = R(s) * sin(ω(s)) * arc.c(s, t)
-
-# 		sInt = [0.0, arc.sj, arc.smax]
-# 		I(t::Real) = quadgk(s -> uInt(s, t), sInt...)[1]
-# 		Iv(t::Real) = quadgk(s -> vInt(s, t), sInt...)[1]
-# 		Ic(t::Real) = quadgk(s -> cInt(s, t), sInt...)[1]
-		
-# 		return new(arc.mode, I, Iv, Ic, arc.tmax)
-# 	end
-# end
-
-struct Intensity
+struct Intensity <: PD
 	mode::String
 	u::Function
 	v::Function
@@ -93,7 +72,6 @@ struct Intensity
 			Origin(0)
 		)
 
-		U = [integrate(raw.s[0:P], Uint[n][:]) for n ∈ eachindex(raw.t)]
 		V = [integrate(raw.s[0:pj], Uint[n][0:pj]) for n ∈ eachindex(raw.t)]
 		C = [integrate(raw.s[pj:P], Uint[n][pj:P]) for n ∈ eachindex(raw.t)]
 		
@@ -111,18 +89,5 @@ struct Intensity
 		u(t) = v(t) + c(t)
 
 		return new(raw.mode, u, v, c, raw.t[end])
-	end
-end
-
-struct Diffusion <: PD
-	mode::String
-	raw::RawOutput
-	arc::ArcLength
-	int::Intensity
-
-	function Diffusion(raw, R, ω)
-		arc = ArcLength(raw)
-		int = Intensity(raw, arc, R, ω)
-		new(raw.mode, raw, arc, int)
 	end
 end

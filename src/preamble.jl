@@ -1,8 +1,7 @@
-"""
-`PD`
+NOVector64 = OffsetVector{OffsetVector{Float64, Vector{Float64}}, Vector{OffsetVector{Float64, Vector{Float64}}}}
 
-Generic supertype for all types involved in this protein diffusion model.
-"""
+OVector64 = OffsetVector{Float64}
+
 abstract type PD end
 
 function Base.show(io::IO, pd::PD)
@@ -14,19 +13,3 @@ function Base.show(io::IO, pd::PD)
 	end
 	println(io, pd |> propertynames |> string)
 end
-
-"""
-`NOVector64`
-
-Nested offset vector of double precision floating point values, i.e. an offset vector of offset vectors each of float64s.
-
-For instance `V`, elements are called as `V[n][p]`.
-"""
-NOVector64 = OffsetVector{OffsetVector{Float64, Vector{Float64}}, Vector{OffsetVector{Float64, Vector{Float64}}}}
-
-"""
-`OVector64`
-
-Offset vector of float64s.
-"""
-OVector64 = OffsetVector{Float64}

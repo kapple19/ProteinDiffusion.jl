@@ -50,6 +50,7 @@ Protein delivery to a cell membrane consists of two alternative fusion modes tha
 
 \chapter{Observations}
 \section{TIRF Microscopy}
+\subsection{Observation Zone}
 \section{Electron Micrography}
 
 \part{Mathematical Model}
@@ -532,7 +533,17 @@ yielding
 \chapter{TIRF Microscopy Model}
 The final component of the intended model incorporation of parameters involved in TIRF Microscopy which limit the resolution of observations for fusion and diffusion dynamics in space and time.
 
-\section{TIRF Zone}
+\section{TIRF Microscopy Zone}
+Due to the TODO, observations are limited to a depth below the TODO.
+
+Let this depth be denoted $d_m > 0$. The viewing angle for full and KNR fusion is thus
+\begin{align*}
+	\varphi_m &= \min\Brace{\pi, \acos\Par{1 - \frac{d_m}{\R}}} \\
+	\phi_m &= \max\Brace{\pi, \acos\Par{1 - \frac{d_m}{\Rv}}} \\
+	\psi_m &= \min\Brace{\pi, \acos\Par{1 - \frac{d_m}{\Rc}}}
+\end{align*}
+
+
 \section{Spot Intensity}
 \section{Ring Intensity}
 
