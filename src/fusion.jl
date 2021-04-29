@@ -3,9 +3,13 @@ struct Membrane <: PD
 	D::Float64
 end
 
-struct FullFusion <: PD
+abstract type FusionMode <: PD end
+
+struct FullFusion <: FusionMode
 	v::Membrane
 	c::Membrane
+	R::Float64
+	ϕj::Float64
 	raw::RawOutput
 	arc::ArcLength
 	int::Intensity
@@ -37,14 +41,18 @@ struct FullFusion <: PD
 		arc = ArcLength(raw)
 		int = Intensity(raw, arc, R, ω)
 
-		return new(v, c, raw, arc, int)
+		return new(v, c, R′, ϕj, raw, arc, int)
 	end
 end
 
-struct KNRFusion <: PD
+struct KNRFusion <: FusionMode
 	v::Membrane
 	c::Membrane
 	Rj::Float64
+	Rv::Float64
+	Rc::Float64
+	φv::Float64
+	ψc::Float64
 	raw::RawOutput
 	arc::ArcLength
 	int::Intensity
@@ -81,6 +89,6 @@ struct KNRFusion <: PD
 		arc = ArcLength(raw)
 		int = Intensity(raw, arc, R, ω)
 
-		return new(v, c, Rj, raw, arc, int)
+		return new(v, c, Rj, Rv′, Rc′, φv, ψc,  raw, arc, int)
 	end
 end

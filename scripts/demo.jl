@@ -29,15 +29,19 @@ cell_pars = (
 function run_demo(CellType::Symbol)
 	Rv, Rc, Rj, Dv, Dc = getproperty(cell_pars, CellType)
 
-	f, k = fusion(Rv, Rc, Rj, Dv, Dc)
+	v = Membrane(Rv, Dv)
+	c = Membrane(Rc, Dc)
 
-	pfraw = plot(f.raw, title = string(CellType))
-	pfarc = plot(f.arc, title = string(CellType))
-	@time pfint = plot(f.int, title = string(CellType))
+	f = FullFusion(v, c)
+	k = KNRFusion(v, c, Rj)
 
-	pkraw = plot(k.raw, title = string(CellType))
-	pkarc = plot(k.arc, title = string(CellType))
-	@time pkint = plot(k.int, title = string(CellType))
+	pfraw = plot(f.raw, title = "Full Fusion: Raw Data\n" * string(CellType) * " Cell")
+	pfarc = plot(f.arc, title = "Full Fusion: Arc Length\n" * string(CellType) * " Cell")
+	pfint = plot(f.int, title = "Full Fusion: Integrated Concentration\n" * string(CellType) * " Cell")
+
+	pkraw = plot(k.raw, title = "KNR Fusion: Raw Data\n" * string(CellType) * " Cell")
+	pkarc = plot(k.arc, title = "KNR Fusion: Arc Length\n" * string(CellType) * " Cell")
+	pkint = plot(k.int, title = "KNR Fusion: Integrated Concentration\n" * string(CellType) * " Cell")
 
 	display.(
 		[
@@ -60,29 +64,3 @@ end
 run_demo(:Unrealistic)
 run_demo(:Beta)
 run_demo(:Adipocyte)
-
-##
-Rv = 150.0
-Rc = 4e3
-Rj = 50.0
-Dv = 1e3
-Dc = 2e2
-
-@time f = full_fusion(Rv, Rc, Dv, Dc)
-
-##
-@time plot(f.int)
-
-##
-Rv = 10.0
-Rc = 10.0
-Rj = 10.0
-Dv = 10.0
-Dc = 10.0
-
-@time k = knr_fusion(Rv, Rc, Rj, Dv, Dc)
-
-##
-plot(k.int)
-
-##

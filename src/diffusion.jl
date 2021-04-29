@@ -1,4 +1,6 @@
-struct RawOutput <: PD
+abstract type DiffusionSolution <: PD end
+
+struct RawOutput <: DiffusionSolution
 	mode::String
 	s::OVector64
 	t::OVector64
@@ -6,7 +8,7 @@ struct RawOutput <: PD
 	pj::Int64
 end
 
-struct ArcLength <: PD
+struct ArcLength <: DiffusionSolution
 	mode::String
 	u::Function
 	v::Function
@@ -42,7 +44,7 @@ struct ArcLength <: PD
 	end
 end
 
-struct Intensity <: PD
+struct Intensity <: DiffusionSolution
 	mode::String
 	u::Function
 	v::Function

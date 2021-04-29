@@ -11,82 +11,43 @@ This package simulates both scenarios as a concentration level diffusion on the 
 ### Installation
 This package is not registered, and thus can only be installed through cloning this repository.
 
-### 
+### Loading
 After git cloning, run
 ```julia
 using ProteinDiffusion
 ```
 
-### Full Fusion
-Set the parameters.
+### Running
+Define the cell and vesicle
 ```julia
-# Radii
-Rv = 1.0
-Rc = 2.0
-
-# Diffusivity
-Dv = 1.0
-Dc = 0.2
+v = Membrane(1.0, 1.0)
+c = Membrane(2.0, 0.2)
 ```
 
-Run the model.
+Run the full fusion model.
 ```julia
-f = full_fusion(Rv, Rc, Dv, Dc)
+f = FullFusion(v, c)
 ```
 
-Plot the concentration WRT arc length.
+View the diffusion
 ```julia
-using Plots
-plot(f.ang, title = "Unrealistic")
+plot(f, arc)
 ```
 
-![](plots/unrealistic_fullfusion_arc)
+![](plots/unrealistic_fullfusion_arc.png)
 
-View the total concentration integral over time.
+Run the KNR fusion model.
 ```julia
-using Plots
-plot(f.int, title = "Unrealistic")
+Rj = 0.4
+k = KNRFusion(v, c, Rj)
 ```
 
-![](plots/unrealistic_fullfusion_int.png)
-
-The raw output data is stored in `f.raw` and can also be plotted as above.
-
-### Kiss-and-Run Fusion
-Set the parameters.
+View the diffusion
 ```julia
-# Radii
-Rv = 75e-3 # [μm] GLUT4 vesicles
-Rc = 17.0 # [μm] adipocytes (smaller of bimodal size distribution)
-Rj = Rv/3 # [μm] pore junction radius
-
-# Diffusivity
-Dv = 0.5
-Dc = 2.0
-```
-
-Run the model.
-```julia
-k = knr_fusion(Rv, Rc, Rj, Dv, Dc)
-```
-
-Plot the concentration WRT arc length.
-```julia
-using Plots
 plot(k.arc)
 ```
 
-![](plots/unrealistic_knrfusion_arc.png)
-
-View the total concentration integral over time.
-```julia
-using Plots
-plot(k.int)
-```
-
-![](plots/unrealistic_knrfusion_int.png)
-
-The raw output data is stored in `k.raw` and can also be plotted as above.
+The raw output data are stored in `f.raw` and `k.raw`, and can also be plotted as above.
 
 ## Model Details
 As detailed in the [documentation][doc]:
