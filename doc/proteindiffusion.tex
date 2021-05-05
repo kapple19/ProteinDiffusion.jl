@@ -47,29 +47,136 @@ The second part provides the mathematical derivation of the model, approximately
 The third part gives a summary of the implementation in the Julia programming language, including the application programming interface (API) from a selection of biological parameters.
 The fourth part gives an interpretation of the model results, providing rationale for conclusions.
 
+The topic of this document is effectively divided into [?] ordered stages, found as a structural theme in the contextual, model, implementation, and interpretation descriptions that the reader is encouraged to observe when reading:
+\begin{enumerate}
+	\item Fusion
+	\item Diffusion
+	\item Observation
+\end{enumerate}
+
 \part{Cell and Protein Dynamics}
 \chapter{Structure}
 \section{Cells}
-\section{Vesicles}
+A typical mammalian cell has a diameter of around 10 micrometers [REF]. Cells are surrounded by a largely impermeable membrane with a typical thickness of 3--10 nanometers [REF]. The extremely thin nature of the membrane can be demonstrated by scaling the cell size up to that of a watermelon, where the resulting membrane thickness becomes that of a sheet of paper. This membrane is composed of phospholipids, which have hydrophilic heads and hydrophobic tails as shown in Figure TODO.
+
+Phospholipids react to the exposure of water [REF]. When a collection of phospholipids are placed in an aqueous environment, the hydrophobic tails are repelled from the water, whilst the heads are attracted to the water. Typical lipid structures are shown in Figure TODO. These include manifold spheres with tails on the inside and heads on the outside (micelle), or sheet-like structures referred to as a phospholipid bilayer. These bilayers can form closed objects such as liposomes. Liposomes are generally very small in diameter [REF]. Cellular lipid bilayers are also known as membranes.
+
 \section{Proteins}
+The outer cell membrane is largely impermeable. In order to transport molecules such as glucose and proteins in and out of the cell, other protein structures are integrated into the structure of the membrane. Such proteins appear in many forms including peripheral, channel, integral, and internal. These molecules carry out specific functions and are free to move laterally on the membrane. Thus, one may think of these proteins on cell membranes as objects free to move laterally in a viscous fluid [REF].
+
+Some cellular functions the proteins enable include [REF]:
+\begin{itemize}
+	\item Transporting materials across the membrane through channels
+	\item Catalysing chemical reactions
+	\item Receiving and sending chemical signals
+	\item Responding to stimuli
+	\item Providing structural support
+\end{itemize}
+
+\section{Vesicles}
+Cells have the capacity to change the amount of membrane-embedded proteins on the outer cell membrane via vesicles [REF]. Such vesicles also consist of a phosopholipid bilayer structure, and membrane contents such as proteins. Vesicles deliver their contents to different locations inside and outside the cell by merging their membrane with that of the destination. This delivers the fluid contents contined inside the vesicle to the extracellular volume, such as happens in neural signalling, but also, more importantly for the current study, the fusion delivers the membrane-embeeded contents to the cell membrane [REF].
 
 \chapter{Dynamics}
 \section{Fusion}
+Vesicles are formed by small pieces of membrane budding off larger membrane structures. When vesicles form at the cell membrane to transport material into the cell the process is called endocytosis [REF].
+
+When vesicles deliver material from the cell cytoplasm (internal contents) to the surface, fusing their membranes with the outer cell membrane, the process is called exocytosis [REF]. The process of exocytosis is the motivation and focus of the present study.
+
+When a vesicle needs to deliver its cargo to a membrane, the vesicle is joined or fused with that of the destination. This in general requires energy expenditure by the cell as it is not energetically favourable to expose the lipid tails to the aqueous cellular environment. Cells use protein ``grappling hooks'' to force the vesicle and destination membranes to join at a circular pore [REF]. These pores are naturally circular, again due to the hydrophobic nature of the lipid tails. After this, one of two things happen, either the vesicle membrane bends to conform to the curvature of the cellular membrane --- a process called full fusion or full collapse fusion depicted in Figure TODO --- or alternatively the vesicle remains largely intact, and does not fully fuse with the cell membrane. In the latter case, the vesicles retain their shape during the flow of proteins from the vesicle onto the cell, and after a period of time the vesicles detach and return to the cell interior. This process is aptly named kiss-and-run fusion, and is shown in Figure TODO.
+
 \section{Diffusion}
+The arrival of membrane proteins at the cell membrane from the fused vesicle results in a local concentration spike. Diffusion of the proteins then redistributes them to equilibrate the concentration across the membrane surfaces [REF]. This diffusion is the central focus of study.
+
+While diffusion in cells can refer to the transport of molecules between the cellular interior and exterior facilitated by proteins [REF], this study uses the term diffusion to refer to the lateral movement of the proteins within the confines of the cellular membrane [REF].
+
+Diffusivity is the measure of the rate of movement of a substance with time in a particular medium. The lateral diffusivity of a membrane is influenced by its composition. Thus diffusivity can vary on the vesicle and cell membranes.
+
+\subsection{Delivery Timing}
+Due to TODO, the delivery of membrane proteins via diffusion typically does not start until the vesicle is established in its fusion form.
+
+\section{Energetics}
+Vesicular fusion requires energy [REF]. The synthesis of a vesicle also costs resources and energy. Thus, kiss-and-run fusion enables resource and energy saving at the cost of maintaining the small delivery pore at the junction of the two membrane manifolds, which however requires energy. In contrast, full fusion results in the vesicle membrane incorporated into the cell membrane. This costs less energy since the membranes converge to an energetic equilibrium. However, any further protein delivery requires the synthesis of more vesicles [REF].
 
 \chapter{Observations}
-\section{TIRF Microscopy}
-\subsection{Observation Zone}
+A cell's bias toward either of the two delivery modes may indicate the underlying processes and mechanisms acting in the cell, with regards to energy expenditure and available resources. This is one motivation for tracking vesicular delivery and modality.
+
 \section{Electron Micrography}
+Electron micrographs are of slices of frozen cells. This is because the process of obtaining the image is long compared to changes and movements within the cells. Thus, whilst high resolution of the cell such as its surface structure is obtained, there is less information regarding the cellular dynamics.
+
+The processes of both vesicular fusion modes have been observed in electron micrography, as shown in Figure TODO.
+
+\section{TIRF Microscopy}
+In Total Internal Reflection Fluorescence (TIRF) Microscopy (TIRFM) proteins are tagged with a fluorescent molecule. The surface to be observed is placed on a microscope coverslip and a laser beam shone on the sample, incident at an angle greater than the critical angle for the coverslip, causing total internal reflection. Not all the energy of the incident light is reflected however, and the evanescant wave, which penetrates the sample, causes the excitation of the fluorophores to depths of around 100 nm, with intensity decaying exponentially. This enables the observation of molecules at the surface of the sample [REF].
+
+In live cell imaging, a sequence of images are recorded, producing a movie of changes occuring at the cell surface [REF].
+
+These frames display pixelated intensity levels at the surface of the cell. An example of such a frame is shown in Figure TODO.
+
+Experimentally, it is often easier to label the membrane embedded contents rather than the contents in the vesicle's interior, allowing experimentalists to also observe these types of fusion events.
+
+The main feature of TIRFM observations of vesicle fusions is the brightness of the spots that appear when the vesicle fuses. An example is shown as the red line plot of the centre profile in Figure TODO. Notice the spike in brightness due to the fusion of the vesicle to the cell, when the vesicle membrane has a high concentration of vesicles relative to the local cell membrane. The subsequent decay in the intensity is due to the diffusion of the proteins from the initial spot region onto the cell membrane [REF].
+
+\subsection{Frame Rate}
+Overexposure of the fluoresced proteins results in bleaching [REF]. As a result, TIRFM snapshots are either of high frame rate for a short period of time, or low frame rate over a longer period of time [REF].
+
+\subsection{Observation Zone}
+As aforementioned, observable fluorescence decays exponentially with depth from the viewing platform [REF] which provides the advantage of limiting dynamics observations to and around the surface, with the disadvantage of no observation for cellular internals. The latter could however deem depth distinctions difficult.
+
+Also recorded in TIRFM are the approach and departure of vesicles via the gradual appearance of a local spot brightness in the former, and the gradual disappearance in the latter.
 
 \part{Mathematical Model}
-\section{Mathematical Background}
-The following description is of a model built on the theory of differential equations, finite element method, 
 
-The mathematical symbols utilized for model derivation and expression are consistently used as given in table TODO.
+\chapter{Mathematical Background}
+\section{Goal}
+This study seeks to identify the distinguishing features of the protein dynamics associated with full fusion and kiss-and-run fusion modes. It particularly investigates whether it is theoretically possible to resolve the fusion mode from the evolution of the distribution of proteins at the cell surface.
+
+The movement of proteins on a cell membrane is governed by diffusion. The fusion and diffusion processes are explored for the geometries involved in full fusion and kiss-and-run fusion. The membranes involved are approximated as spherical manifolds.
+
+A classifier for experimental fusion observations is developed here. The main experimental observation is the intensity of the fusion spot, Figure TODO. For the theoretical analogue, the spot intensity is defined to be the normalized total concentration of proteins in the initial spot-region where a vesicle has fused to the cell membrane. The nomenclature is consistent with the fact that the total number of proteins in an area is proportional to the intensity of fluorescence seen in TIRF microscopy.
+
+Due to the limited resolution of the experimental data, it is not possible to observe all the details of the dynamics at a vesicular scale. Instead, experiments track the pixelated spot intensity as a function of discrete time steps. The mathematical models have the advantage of analysis with ``infinite'' resolution in both space and time.
+
+Of auxiliary usefulness is the intensity of the ring around the fusion spot. Both fusion modes are inticipated to have similar intensity dynamics, yet the surrounding ring is expected to have stronger distinctions. In observations, the ring intensity can distinguish between a transiting vesicle under the surface from an actual fusion event.
+
+Also modelled is the TIRFM observation zone, wherein the fluorescence decays exponentially with depth.
+
+\section{Notation}
+The standard Cartesian coordinate system in three dimensions are described using $\vec{x} = (x, y, z)$ with positive directions defined via the right-hand rule. The vertical coordinate $z$ is replaced in some modelling contexts with $\xi$ and $\zeta$, which are simply vertical offsets sharing horizontal coordinates $(x, y)$.
+
+The dimension of time is represented by the variable $t$.
+
+Proteins are treated as infinitesimal, parameterised and treated similarly to heat. Symbols of use are $u$, $v$ and $c$ which will be defined in their respective contexts. The term concentration is used interchangeably with density.
+
+The parameter of the flux of proteins is represented by $J$ as a scalar, or $\vec{J}$ as a vector, and is minimally but vitally explored. It's involvment is implicity in other parameters.
+
+The rate of diffusion of proteins is termed the diffusivity, notated $D$.
+
+Distances from the coordinate origin in spherical coordinates is denoted by $r$ as a variable, and $R$ as a constant. The respective polar angle is expressed as $\varphi$, $\phi$, and $\psi$ introduced as needed with the model derivation.
+
+The use of angle brackets $\Angle{\bullet}$ are typically used to denote inner products in linear algebra, and integrated averages over time or another continuous parameter in physical sciences. In this paper, a definition similar to both is employed as defined in TODO.
+
+As demonstrated in the previous paragraph, a bullet $\bullet$ is sometimes used as a placeholder for a variable or function.
+
+The Heaviside function is used extensively in the modelling process, and is denoted $H(x)$, defined as
+\begin{align*}
+	H(x) &= \begin{cases}
+		0 & x < 0 \\
+		0.5 & x = 0 \\
+		1 & x > 0
+	\end{cases}
+\end{align*}
+
+\section{Modelling Theory}
+The following description is of a model built on the theory of differential equations, the finite element method, 
+
+All scenarios analysed in this paper are axisymmetric and restricted to the surface of a sphere.
+
+Metric units are considered consistent, and are not defined until TODO.
 
 \chapter{Diffusion}
 Protein delivery dynamics are here modelled as a scaled concentration diffusion on the surface of static membrane manifolds. Full fusion is modelled on the surface of a sphere, and kiss-and-run fusion on the surface of two truncated, connected spheres. The physical parameters involved in each model are derived from the pre-fusion cell and delivery vesicle parameters. The diffusion equation is then solved on the manifold defined by those parameters.
+
+The membranes are modelled as static due to the diffusion of proteins not starting until the vesicle is established in its fusion form structure, see TODO.
 
 \section{Conservation of Mass}
 The diffusion model assumes no source or sink for proteins, hence a conservation of mass expressed as follows.
@@ -79,34 +186,36 @@ The diffusion model assumes no source or sink for proteins, hence a conservation
 \end{align*}
 
 \section{Fick's First Law of Diffusion}
+Fick's first law of diffusion simply states that the flux goes from high to low levels of concentration.
+
 \begin{align*}
-	J(\vec{x}, t) &= -D(\vec{x}, t) \nabla{u(\vec{x}, t)}
+	\vec{J}(\vec{x}, t) &= -D(\vec{x}, t) \nabla{u(\vec{x}, t)}
 \end{align*}
 
 \section{Diffusion Equation}
+The diffusion equation is obtained via equating the flux under the law of mass conservation with Fick's first law of diffusion.
 \begin{align*}
 	\pdv{u(\vec{x}, t)}{t} &= \nabla \dotproduct \Brack{D(\vec{x}, t)\ \nabla{u(\vec{x}, t)}}
 \end{align*}
 
 In spherical coordinates with azimuthal symmetry on the surface of a sphere,
 \begin{align*}
-	\rho^2 \sin(\varphi) \pdv{u}{t} &= \pdv{}{\varphi}\Par{D(\phi) \sin(\phi) \pdv{u}{\phi}}
+	r^2 \sin(\varphi) \pdv{u}{t} &= \pdv{}{\varphi}\Par{D(\varphi) \sin(\varphi) \pdv{u}{\varphi}}
 \end{align*}
 
-\begin{tabularx}{\textwidth}{lX}
-	$R_v$ & Pre-Fusion Vesicle Radius \\
-	$R_c$ & Pre-Fusion Cell Radius
-\end{tabularx}
+\section{Pre-Fusion Parameters}
+The fusion events in question involve the dynamics of two spherical membranes connecting to form a fused system. Preceding any contact, the physical features of the two membranes are parameterised for their spherical radius and membrane protein diffusivity. Specifically, subscripts $\bullet_v$ and $\bullet_c$ are used to denote parameters for the vesicle and cell respecitvely. The model input constants are $R_v$ and $R_c$ for the pre-fusion radii and $D_v$ and $D_c$ for the diffusivites.
 
-\begin{tabularx}{\textwidth}{lX}
-	$D_v$ & Vesicle Diffusivity \\
-	$D_c$ & Cell Diffusivity
-\end{tabularx}
+The fusion events result in geometric deformities that demand the calculation of further post-fusion parameters. However the diffusivities are assumed to persist.
 
 \section{Total Concentration}
+The objective output variable of interest is the intensity, otherwise termed the integration of the normalised concentration level over a specified spatial domain $\Omega$.
+
 \begin{align*}
-	\Angle{\bullet} &= 2\pi \rho^2 \int_0^\pi \bullet \sin(\varphi)\ \dd\varphi
+	\Angle{\bullet}_\Omega &= r^2 \int_\Omega \bullet \sin(\varphi)\ \dd\varphi
 \end{align*}
+
+This definition is later re-derived into a form used due to the model derivation process, given in TODO and TODO.
 
 \chapter{Full Fusion}
 \section{Fusion Parameters}
@@ -139,10 +248,10 @@ The frontier of analytical solution methods for the diffusion problem specified 
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} \\
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \\
 	\R^2 \int_\Omega \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) \dd\varphi &= \int_\Omega \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \dd\varphi \\
-	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= \Brack{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} w(\varphi)}_\Omega
+	\Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= \Brack{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} w(\varphi)}_\Omega
 	- \int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
-	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= -\int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
-	\frac{1}{2\pi} \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= - \frac{1}{2\pi \R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
+	\Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= -\int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
+	\Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= - \frac{1}{2\pi \R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
 \end{align*}
 yielding the weak form
 \begin{align*}
@@ -150,7 +259,7 @@ yielding the weak form
 \end{align*}
 with total concentration
 \begin{align*}
-	\Angle{\bullet} &= 2\pi \R^2 \int_\Omega \sin(\varphi) \bullet \dd\varphi
+	\Angle{\bullet} &= \R^2 \int_\Omega \sin(\varphi) \bullet \dd\varphi
 \end{align*}
 
 \subsection{Parameterisation by Arc Length}
@@ -228,17 +337,17 @@ On the vesicle,
 	\Rv^2 \sin(\phi) \pdv{v(\phi, t)}{t} f(\phi) &= D_v \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}} f(\phi) \\
 	\Rv^2 \int_{\Omega_v} \sin(\phi) \pdv{v(\phi, t)}{t} f(\phi)\ \dd\phi &= D_v \int_{\Omega_v} \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}} f(\phi)\ \dd\phi \\
 	\Rv^2 \int_{\Omega_v} \sin(\phi) \pdv{v(\phi, t)}{t} f(\phi)\ \dd\phi &= D_v \int_{\Omega_v} \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}} f(\phi)\ \dd\phi \\
-	\frac{1}{2\pi} \Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v &= D_v \Par{\Brack{\sin(\phi) \pdv{v(\phi, t)}{\phi} f(\phi)}_{\Omega_v} - \int_{\Omega_v} \sin(\phi) \pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}\ \dd\phi} \\
-	\frac{1}{2\pi} \Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v &= D_v \Par{\Brack{\sin(\phi_v) \pdv{v(\phi_v, t)}{\phi} f(\phi_v) - 0} - \frac{1}{2\pi \Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}}} \\
-	\frac{1}{2\pi} \Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v &= D_v \Par{\sin(\phi_v) \pdv{v(\phi_v, t)}{\phi} f(\phi_v) - \frac{1}{2\pi \Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}}}
+	\Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v &= D_v \Par{\Brack{\sin(\phi) \pdv{v(\phi, t)}{\phi} f(\phi)}_{\Omega_v} - \int_{\Omega_v} \sin(\phi) \pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}\ \dd\phi} \\
+	\Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v &= D_v \Par{\Brack{\sin(\phi_v) \pdv{v(\phi_v, t)}{\phi} f(\phi_v) - 0} - \frac{1}{2\pi \Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}}} \\
+	\Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v &= D_v \Par{\sin(\phi_v) \pdv{v(\phi_v, t)}{\phi} f(\phi_v) - \frac{1}{2\pi \Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}}}
 \end{align*}
 
 On the cell,
 \begin{align*}
 	\Rc^2 \sin(\psi) \pdv{c(\psi, t)}{t} &= D_c \pdv\psi \Par{\sin(\psi) \pdv{c(\psi, t)}{\psi}} \\
-	\frac{1}{2\pi} \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c &= D_c \Par{\Brack{\sin(\psi) \pdv{c(\psi, t)}{\psi} g(\psi)}_{\Omega_v} - \int_{\Omega_v} \sin(\psi) \pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}\ \dd\psi} \\
-	\frac{1}{2\pi} \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c &= D_c \Par{\Brack{0 - \sin(\pi - \psi_v) \pdv{c(\pi - \psi_v, t)}{\psi} g(\pi - \psi_v)} - \frac{1}{2\pi \Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}} \\
-	\frac{1}{2\pi} \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c &= -D_c \Par{\sin(\pi - \psi_v) \pdv{c(\pi - \psi_v, t)}{\psi} g(\pi - \psi_v) + \frac{1}{2\pi \Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}}
+	\Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c &= D_c \Par{\Brack{\sin(\psi) \pdv{c(\psi, t)}{\psi} g(\psi)}_{\Omega_v} - \int_{\Omega_v} \sin(\psi) \pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}\ \dd\psi} \\
+	\Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c &= D_c \Par{\Brack{0 - \sin(\pi - \psi_v) \pdv{c(\pi - \psi_v, t)}{\psi} g(\pi - \psi_v)} - \frac{1}{2\pi \Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}} \\
+	\Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c &= -D_c \Par{\sin(\pi - \psi_v) \pdv{c(\pi - \psi_v, t)}{\psi} g(\pi - \psi_v) + \frac{1}{2\pi \Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}}
 \end{align*}
 
 Adding the two expressions,
@@ -249,9 +358,9 @@ Adding the two expressions,
 \end{align*}
 then substituting the membrane angle sizes
 \begin{align*}
-	& \frac{1}{2\pi} \Par{\Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v + \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c} \\
+	& \Par{\Angle{\pdv{v(\phi, t)}{t} f(\phi)}_v + \Angle{\pdv{c(\psi, t)}{t} g(\psi)}_c} \\
 	& \quad= D_v \frac{R_j}{\Rv} \pdv{v(\phi_v, t)}{\phi} f(\phi_v) - D_c \frac{R_j}{\Rc} \pdv{c(\pi - \psi_v, t)}{\psi} g(\pi - \psi_v) \\
-	& \qquad- \frac{1}{2\pi} \Par{\frac{D_v}{\Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}} + \frac{D_c}{\Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}}
+	& \qquad- \Par{\frac{D_v}{\Rv^2} \Angle{\pdv{v(\phi, t)}{\phi} \pdv{f(\phi)}{\phi}} + \frac{D_c}{\Rc^2} \Angle{\pdv{c(\psi, t)}{\psi} \pdv{g(\psi)}{\psi}}}
 \end{align*}
 
 Select $f(\phi)$ and $g(\psi)$ such that
@@ -331,7 +440,7 @@ with
 		\Rv & s \in \Gamma_v \\
 		\Rc & s \in \Gamma_c
 	\end{cases} \\
-	\Angle{\bullet} &= 2\pi \int \R(s) \sin\Par{\omega(s)} \bullet \dd{s}
+	\Angle{\bullet} &= \int \R(s) \sin\Par{\omega(s)} \bullet \dd{s}
 \end{align*}
 
 \chapter{Finite Element Method}
@@ -341,7 +450,7 @@ The finite element method expressed generically for the fusion modes of full and
 \end{align*}
 with
 \begin{align*}
-	\Angle{\bullet} &= 2\pi \int_\Gamma R(s) \sin\Par{\omega(s)} \bullet \dd{s}
+	\Angle{\bullet} &= \int_\Gamma R(s) \sin\Par{\omega(s)} \bullet \dd{s}
 \end{align*}
 for $\Gamma$, $s$, $D(s)$, $R(s)$, and $\omega(s)$ defined by the fusion mode model.
 
