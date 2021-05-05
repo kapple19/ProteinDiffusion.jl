@@ -10,6 +10,9 @@
 \usepackage{tabularx}
 \usepackage{parskip}
 \usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+
+\graphicspath{{../img}}
 
 \newcommand\Par[1]{{ \left({#1}\right) }}
 \newcommand\Brack[1]{{ \left[{#1}\right] }}
@@ -39,7 +42,7 @@
 
 \chapter{Introduction}
 \section{Abstract}
-Protein delivery to a cell membrane consists of two alternative fusion modes that contrast in energy expenditure and resource-cost. Thus, identifying a cell's bias to either of the two modes can suggest the process acting in the cell. However, current experimental and observational methods for time-dependent fusion events are limited in resolution, obscuring the differences between the two modes. We model both modes, simulate over the parameters spaces of known values for mammalian cells, and compare the theoretical evolution of the fusion and diffusion process. Failure to distinguish the two modes in simulation with infinite resolution can suggest the impossibility in making distinctions with limited resolution. On the other hand, successful distinctions in simulations can suggest the type of observations that may provide further resolution of the process in the laboratory setting.
+Protein delivery to a cell membrane consists of two alternative fusion modes that contrast in energy expenditure and resource-cost. Thus, identifying a cell's bias to either of the two modes can suggest the process acting in the cell \cite{he2007debate}. However, current experimental and observational methods for time-dependent fusion events are limited in resolution, obscuring the differences between the two modes. We model both modes, simulate over the parameters spaces of known values for mammalian cells, and compare the theoretical evolution of the fusion and diffusion process. Failure to distinguish the two modes in simulation with infinite resolution can suggest the impossibility in making distinctions with limited resolution. On the other hand, successful distinctions in simulations can suggest the type of observations that may provide further resolution of the process in the laboratory setting.
 
 \section{Reading}
 This document is a detailed description of the biological and experimental background, the mathematical model, programmed implementation, and interpretation of results. The audience are graduates and above who have familiarity with the fields of cell biology and the finite element method. Needless to say, the reader can skip to the interpretation at the end of the document.
@@ -876,5 +879,8 @@ One metric for mode discernment in the theoretical space is the rate of decrease
 \section{Frame Rate}
 
 \chapter{Discernment}
+
+\bibliography{proteindiffusion}
+\bibliographystyle{apalike}
 
 \end{document}
