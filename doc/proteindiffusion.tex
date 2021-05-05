@@ -849,6 +849,16 @@ By nature of the evanescent wave, observations are limited to a depth below the 
 \subsection{Ring Intensity}
 
 \chapter{Tests}
+For each run of the diffusion model, there are a number of tests that can be performed on the resulting solution.
+
+\section{Total Concentration}
+By the law of mass conservation, the integrated concentration $\Angle{u}$ must be constant. This is easy to check.
+
+\section{Junction Flux}
+For all timesteps, it is expected that the solution satisfy the junction flux relationship specified by TODO.
+
+\section{Steady State}
+This test is actually incorporated as the stopping condition for the solving loop. Once the solution is proven to be converging uniformly to the steady state value within a tolerance, the loop ends.
 
 \chapter{Model Usage}
 Due to the diminutive nature of cells and vesicles, the model implementation would require a very small stepping size. Fortunately, the units used in the model only require consistency, thus input units are specified when used.
