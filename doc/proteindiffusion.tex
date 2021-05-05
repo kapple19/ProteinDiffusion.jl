@@ -29,6 +29,8 @@
 \newcommand\Rc{{ R'_c }}
 \newcommand\Rv{{ R'_v }}
 
+\newcommand\SA{{ \text{SA} }}
+
 \newcommand\conv{{ \text{conv} }}
 
 \begin{document}
@@ -106,7 +108,7 @@ Electron micrographs are of slices of frozen cells. This is because the process 
 The processes of both vesicular fusion modes have been observed in electron micrography, as shown in Figure TODO.
 
 \section{TIRF Microscopy}
-In Total Internal Reflection Fluorescence (TIRF) Microscopy (TIRFM) proteins are tagged with a fluorescent molecule. The surface to be observed is placed on a microscope coverslip and a laser beam shone on the sample, incident at an angle greater than the critical angle for the coverslip, causing total internal reflection. Not all the energy of the incident light is reflected however, and the evanescant wave, which penetrates the sample, causes the excitation of the fluorophores to depths of around 100 nm, with intensity decaying exponentially. This enables the observation of molecules at the surface of the sample [REF].
+In Total Internal Reflection Fluorescence (TIRF) Microscopy (TIRFM) proteins are tagged with a fluorescent molecule. The surface to be observed is placed on a microscope coverslip and a laser beam shone on the sample, incident at an angle greater than the critical angle for the coverslip, causing total internal reflection. Not all the energy of the incident light is reflected however, and the evanescent wave, which penetrates the sample, causes the excitation of the fluorophores to depths of around 100 nm, with intensity decaying exponentially. This enables the observation of molecules at the surface of the sample [REF].
 
 In live cell imaging, a sequence of images are recorded, producing a movie of changes occuring at the cell surface [REF].
 
@@ -157,6 +159,8 @@ The use of angle brackets $\Angle{\bullet}$ are typically used to denote inner p
 
 As demonstrated in the previous paragraph, a bullet $\bullet$ is sometimes used as a placeholder for a variable or function.
 
+The same physical parameters are explored in different micro-contexts, required either alternative use of symbol (as above with concentration and vertical coordinate) or symbol embellishment for distinction. for distinction between pre- and post-fusion parameters, a prime $\bullet'$ is used to denote post-fusion parameter. The absence of a prime however does not imply strictly pre-fusion.
+
 The Heaviside function is used extensively in the modelling process, and is denoted $H(x)$, defined as
 \begin{align*}
 	H(x) &= \begin{cases}
@@ -165,6 +169,18 @@ The Heaviside function is used extensively in the modelling process, and is deno
 		1 & x > 0
 	\end{cases}
 \end{align*}
+
+$\delta_{mn}$ is the Kronecker delta,
+\begin{align*}
+	\delta_{mn} &= \begin{cases}
+		0 & m \neq n \\
+		1 & m = n
+	\end{cases}
+\end{align*}
+
+Topological set theory notation is used, particularly $\overline\bullet$ to denote set closure, $\partial\bullet$ for the boundary/ies of a set, $\inf\bullet$ and $\sup\bullet$ respectively denoting the infimum and supremum (boundaries) of the set $\bullet$, and $\conv\bullet$ denoting the convex hull of the set $\bullet$. Motivation for such uses are for concise expression and this paper does not explore any rigorous topology or differential geometry.
+
+Other set notation used are the classical symbols of $\bbR$ for the real numbers and $\bbZ$ for the integers. The strictly positive integers are denoted $\bbZ^+$ and to include zero, $\bbZ_0^+$. $\bbP$ is used to denote the set of valid integer values for an index in the derived models, $\bbP = \Brace{0, 1, 2, ..., P-1, P}$ for $P \in \bbZ^+$.
 
 \section{Modelling Theory}
 The following description is of a model built on the theory of differential equations, the finite element method, 
@@ -208,6 +224,8 @@ The fusion events in question involve the dynamics of two spherical membranes co
 
 The fusion events result in geometric deformities that demand the calculation of further post-fusion parameters. However the diffusivities are assumed to persist.
 
+Though it is highly unrealistic for a vesicle to approach the size of the cell, such a scenario provides a convenient way to test the validity of the derived models.
+
 \section{Total Concentration}
 The objective output variable of interest is the intensity, otherwise termed the integration of the normalised concentration level over a specified spatial domain $\Omega$.
 
@@ -217,33 +235,126 @@ The objective output variable of interest is the intensity, otherwise termed the
 
 This definition is later re-derived into a form used due to the model derivation process, given in TODO and TODO.
 
+\section{Fusion}
+
+For both fusion events, the following assumptions are made.
+
+\subsection{Conservation of Surface Area}
+Pre-fusion, the vesicle and cell surface areas are given as
+\begin{align*}
+	\SA_v &= 4\pi R_v^2 \\
+	\SA_c &= 4\pi R_c^2
+\end{align*}
+
 \chapter{Full Fusion}
 \section{Fusion Parameters}
+The process of full fusion results in the vesicle becoming fully incorporated into the geometrical structure of a cell. This results in a post-fusion sphere, which is modelled with polar angle $\varphi \in \overline\Omega$ with $\Omega = (0, \pi)$. The vesicle becomes fused as a polar cap on the fused system. The system maintains its axisymmetry.
+
+\subsection{Post-Fusion Radii}
+Under the assumption of surface area preservation,
 \begin{align*}
-	D(\varphi) &= D_v H(\varphi_j - \varphi) + D_c H(\varphi - \varphi_j) \\
-	\R^2 &= R_v^2 + R_c^2 \\
-	\varphi_j &= \acos\Par{\frac{R_c^2 - R_v^2}{\R^2}} \\
-	\Rs &= \frac{2 R_v R_c}{\R}
+	\SA_\text{full fusion} &= \SA_v + \SA_c \\
+	\Rightarrow 4\pi \R^2 &= 4\pi R_v^2 + 4\pi R_c^2 \\
+	\Rightarrow \R &= \sqrt{R_v^2 + R_c^2}
+\end{align*}
+where the post-fusion spherical radius is denoted as $\R > 0$.
+
+\subsection{Junction Angle}
+The fused system results in the vesicle and cell membrane meeting at a location termed the junction, denoted by the polar angle as $\varphi_j$. The location of this junction is derived from the fact that the vesicle's preserved surface area occupies the fused sphere as a spherical cap.
+\begin{align*}
+	\SA_\text{cap} &= \SA_v \\
+	\Rightarrow 2\pi \R^2 \Par{1 - \cos(\varphi_j)} &= 4\pi R_v^2 \\
+	\Rightarrow \varphi_j &= \cos^{-1}\Par{1 - \frac{2R_v^2}{\R^2}} \\
+	&= \cos^{-1}\Par{\frac{R_c^2 - R_v^2}{\R^2}} \\
+\end{align*}
+for $\varphi_j \in \Omega$.
+
+\subsection{Diffusivity}
+The full fusion model assumes conservation of diffusivity, resulting in a junction consisting of a potential diffusivity transition. This is modelled as Heaviside.
+\begin{align*}
+	D(\varphi) &= D_v H(\varphi_j - \varphi) + D_c H(\varphi - \varphi_j)
 \end{align*}
 
 \section{Initial-and-Boundary Value Problem}
-\begin{align*}
-	\Omega &= (0, \pi)
-\end{align*}
-
+The diffusion equation applied to the full fusion model with parameters defined above provides the initial-and-boundary value problem as follows.
 \begin{align*}
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}}
 	& \varphi &\in \Omega
-	& t &\in \bbR_0^+ \\
+	& t &> 0 \\
 	u(\varphi, t) &= H(\varphi_j - \varphi)
-	& \varphi &\in \Omega
-	& t &\in \bbR_0^+
+	& \varphi &\in \overline\Omega
+	& t &= 0 \\
+	\pdv{u(\varphi, t)}{\varphi} &= 0 & \varphi &\in \partial\Omega & t &\geq 0
 \end{align*}
 
-\section{Analytical Solution}
-The frontier of analytical solution methods for the diffusion problem specified above involves constant diffusivity.
+\section{Analytical Solution for Constant Diffusivity}
+The frontier of analytical solution methods for the diffusion problem specified above involves constant diffusivity. Though deriving such a solution is of limited scope, it provides a useful validity test for the implementation.
+
+By constant diffusivity, $D(\varphi) = D$ so
+\begin{align*}
+	\frac{\R^2}{D} \pdv{u(\varphi, t)}{t} &= \frac{1}{\sin(\varphi)}\pdv\varphi\Par{\sin(\varphi) \pdv{u(\varphi, t)}{\varphi}}
+\end{align*}
+
+Via the method of separation of variables for partial differential equations, we assume
+\begin{align*}
+	u(\varphi, t) &= \Phi(\phi) T(t)
+\end{align*}
+and substitution into the full fusion diffusion equation yields the pair of equations
+\begin{align*}
+	0 &= \dv{T(t)}{t} + \frac{\lambda D}{\R^2} T(t) \\
+	0 &= \frac{1}{\sin(\varphi)} \dv{\varphi}\Par{\sin(\varphi) \dv{\Phi(\varphi)}{\varphi}} + \lambda \Phi(\varphi)
+\end{align*}
+with separation constant $-\lambda$. The temporal equation admits solution form
+\begin{align*}
+	T(t) &= \exp\Brace{\frac{-\lambda D}{\R^2} t}
+\end{align*}
+Let our spatial transform project to the vertical coordinate $z = \cos(\varphi)$ with $\Phi(\varphi) = Z(z)$, so
+\begin{align*}
+	0 &= \dv{z}\Par{\Par{1 - z^2} \dv{Z(z)}{z}} + \lambda Z(z)
+\end{align*}
+which admits eigenfunction solutions of the form
+\begin{align*}
+	Z_n(z) &= P_n(z) & n &= 0, 1, 2, ...
+\end{align*}
+where $P_n$ is the $n^\text{th}$ Legendre Polynomial of the first kind, with eigenvalues
+\begin{align*}
+	\lambda_n &= n \Par{n + 1} & n &= 0, 1, 2, ...
+\end{align*}
+and our solution holds the form
+\begin{align*}
+	u(\varphi, t) &= \sum_{n = 0}^\infty c_n P_n\Par{\cos(\varphi)} \exp\Brace{\frac{-\lambda_n D}{\R^2} t}
+\end{align*}
+Applying the initial condition (with vertical coordinate for clarity)\footnote{Author Note: Check validity of interchanging infinite sum with definite integral.},
+\begin{align*}
+	H(z - z_j) &= \sum_{n = 0}^\infty c_n P_n(z) \\
+	\Rightarrow H(z - z_j) P_m(z) &= P_m(z) \sum_{n = 0}^\infty c_n P_n(z) & m &= 0, 1, 2, ... \\
+	&= \sum_{n = 0}^\infty c_n P_m(z) P_n(z) & m &= 0, 1, 2, ... \\
+	\Rightarrow \int_{-1}^1 H(z - z_j) P_m(z) \dd{z} &= \int_{-1}^1 \sum_{n = 0}^\infty c_n P_m(z) P_n(z) \dd{z} & m &= 0, 1, 2, ... \\
+	&= \sum_{n=0}^\infty c_n \int_{-1}^1 P_m(z) P_n(z) \dd{z} & m &= 0, 1, 2, ... \\
+	&= \sum_{n=0}^\infty c_n \frac{2 \delta_{mn}}{2n + 1}
+\end{align*}
+and for $m = 0$,
+\begin{align*}
+	\text{LHS} &= \int_{z_j}^1 \dd{z} \\
+	&= 1 - z_j
+\end{align*}
+but for $m = 1, 2, 3, ...$,\footnote{Author note: reference identity}
+\begin{align*}
+	\text{LHS} &= \int_{-1}^1 H(z - z_j) P_m(z) \dd{z} \\
+	&= \int_{z_j}^1 P_m(z) \dd{z} \\
+	&= \frac{1}{2m + 1} \Brack{P_{m+1}(z) - P_{m-1}(z)}_{z_j}^1 \\
+	&= \frac{P_{m+1}(z_j) - P_{m-1}(z_j)}{2m + 1}
+\end{align*}
+thus for $m = n$,
+\begin{align*}
+	c_n &= \begin{cases}
+		\dfrac{1 - \cos(\phi_j)}{2} & n = 0 \\ \\
+		\dfrac{P_{n+1}\Par{\cos\phi_j} - P_{n-1}\Par{\cos\phi_j}}{2} & n = 1, 2, 3, ...
+	\end{cases}
+\end{align*}
 
 \section{Weak Form}
+The numerical solution in prospect requires reformulation of the differential equation in weak form as follows. With $w(\varphi)$ the test function,
 \begin{align*}
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} \\
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \\
@@ -267,12 +378,6 @@ By foresight of the kiss-and-run fusion modelling, we parameterize the full fusi
 \begin{align*}
 	\varphi &= \frac{s(\varphi)}{\R}
 \end{align*}
-so
-\begin{align*}
-	\dd{\varphi} &= \frac{1}{\R} \dd{s} \\
-	\pdv{\varphi} &= \R \pdv{s}
-\end{align*}
-
 providing the new weak form
 \begin{align*}
 	0 &= \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} + \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
@@ -284,31 +389,67 @@ with
 \end{align*}
 
 \chapter{Kiss-and-Run Fusion}
-\begin{tabularx}{\textwidth}{lX}
-	$R_j$ & Post-Fusion Junction Radius
-\end{tabularx}
-
 \section{Fusion Parameters}
+The process of kiss-and-run fusion results in the vesicle mostly retaining its spherical shape. The cell similarly retains its shape, but both membranes attain an opening or pore of circular geometry with radius denoted $R_j$. The fused system is assigned two coordinate systems, one for each membrane with polar angles $\phi \in \Omega_v$ for the vesicle and $\psi = \Omega_c$ on the cell. The respective domains are derived as following, such that $\Abs{\Omega_v} = \phi_v$ and $\Abs{\Omega_c} = \psi_c$.
+
+\subsection{Post-Fusion Radii}
+Under the assumption of surface area preservation, the vesicle undergoes perforation resulting in a polar cap domain void.
 \begin{align*}
-	\Rv &= \frac{2 R_v^2}{\sqrt{4R_v^2 - R_j^2}} \\
-	\Rc &= \frac{2 R_c^2}{\sqrt{4R_c^2 - R_j^2}} \\
-	\phi_v &= \pi - \asin\Par{\frac{R_j}{\Rv}} \\
-	\psi_c &= \pi - \asin\Par{\frac{R_j}{\Rc}}
+	\SA'_v &= \SA_v \\
+	\Rightarrow 2\pi \Rv^2 \int_0^{\phi_v} \sin\phi \dd{\phi} &= 4\pi R_v^2 \\
+	\Rightarrow \Rv^2 \Par{1 - \cos\phi_v} &= 2 R_v^2
+\end{align*}
+Also note from the trigonometry,
+\begin{align*}
+	\cos(\phi_v) &= \frac{-\sqrt{\Rv^2 - R_j^2}}{\Rv}
+\end{align*}
+where the negative root arises from our choice of $\phi_v$ in the second quadrant. Thus,
+\begin{align*}
+	\Rv^2 \Par{1 - \cos\phi_v} &= 2 R_v^2 \\
+	\Rightarrow \Rv^2 \Par{1 + \frac{\sqrt{\Rv^2 - R_j^2}}{\Rv}} &= 2 R_v^2 \\
+	\Rightarrow \Rv^2 + \Rv\sqrt{\Rv^2 - R_j^2} &= 2 R_v^2 \\
+	\Rightarrow \sqrt{\Rv^2 - R_j^2} &= \frac{2 R_v^2 - \Rv^2}{\Rv} \\
+	\Rightarrow \Rv^2 - R_j^2 &= \frac{\Par{2 R_v^2 - \Rv^2}^2}{\Rv^2} \\
+	\Rightarrow \Rv^4 - R_j^2 \Rv^2 &= 4R_v^4 - 4R_v^2\Rv^2 + \Rv^4 \\
+	\Rightarrow -R_j^2 \Rv^2 &= 4R_v^4 - 4R_v^2\Rv^2 \\
+	\Rightarrow \Rv^2\Par{4R_v^2 - R_j^2} &= 4R_v^4 \\
+	\Rightarrow \Rv^2 &= \frac{4R_v^4}{4R_v^2 - R_j^2} \\
+	\Rightarrow \Rv &= \frac{2R_v^2}{\sqrt{4R_v^2 - R_j^2}}
+\end{align*}
+
+By the same reasoning,
+\begin{align*}
+	\Rc &= \frac{2R_c^2}{\sqrt{4R_c^2 - R_j^2}}
+\end{align*}
+
+\subsection{Junction Angles}
+By the geometry,
+\begin{align*}
+	\phi_v &= \pi - \sin^{-1}\Par{\frac{R_j}{\Rv}} \\
+	\psi_c &= \pi - \sin^{-1}\Par{\frac{R_j}{\Rc}}
 \end{align*}
 
 \section{Initial-and-Boundary Value Problem}
+The domain of our differential equation is of two connected truncated spheres, connected at their truncations.
 \begin{align*}
 	\Omega_v &= (0, \phi_v) \\
 	\Omega_c &= (\pi - \psi_c, \pi)
 \end{align*}
 
+The initial-and-boundary value problem is of a connection of two systems such that
 \begin{align*}
 	\Rv^2 \sin(\phi) \pdv{v(\phi, t)}{t} &= D_v \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}}
 	& \phi &\in \Omega_v
-	& t &\in \bbR_0^+ \\
+	& t &\geq 0 \\
 	\Rc^2 \sin(\psi) \pdv{c(\psi, t)}{t} &= D_c \pdv\psi \Par{\sin(\psi) \pdv{c(\psi, t)}{\psi}}
 	& \psi &\in \Omega_c
-	& t &\in \bbR_0^+ \\
+	& t &\geq 0
+\end{align*}
+
+Initially,
+\begin{align*}
+	v(\phi, t) &= 1 & \phi &\in \Omega_v & & & t &= 0 \\
+	c(\psi, t) &= 0 & & & \psi &\in \Omega_c & t &= 0
 \end{align*}
 
 At the junction,
@@ -316,21 +457,22 @@ At the junction,
 	v(\phi, t) &= c(\psi, t)
 	& \phi &= \sup\Omega_v
 	& \psi &= \inf\Omega_c
-	& t &\in \bbR_0^+ \\
+	& t &\geq 0 \\
 	\frac{D_v}{\Rv} \pdv{v(\phi, t)}{\phi} &= \frac{D_c}{\Rc} \pdv{c(\psi, t)}{\psi}
 	& \phi &= \sup\Omega_v
 	& \psi &= \inf\Omega_c
-	& t &\in \bbR_0^+ \\
+	& t &\geq 0
 \end{align*}
 
-Initially,
+And initially at the junction,
 \begin{align*}
-	v(\phi, t) &= 1 & \phi &\in \Omega_v & & & t &\in \bbR_0^+ \\
-	c(\psi, t) &= 0 & & & \psi &\in \Omega_c & t &\in \bbR_0^+ \\
 	v(\phi, t) &= c(\psi, t) = 0.5 & \phi &\in \Omega_v & \psi &\in \Omega_c & t &\in \bbR_0^+
 \end{align*}
+imitating a Heaviside transition.
 
 \section{Weak Form}
+The weak form is developed with $f(\phi)$ and $g(\psi)$ as test functions.
+
 On the vesicle,
 \begin{align*}
 	\Rv^2 \sin(\phi) \pdv{v(\phi, t)}{t} &= D_v \pdv\phi \Par{\sin(\phi) \pdv{v(\phi, t)}{\phi}} \\
@@ -444,6 +586,11 @@ with
 \end{align*}
 
 \chapter{Finite Element Method}
+The rigour of approximating the weak form's solution via projection onto a space of square-integrable piecewise-linear functions is not explicitly explored here. However, the theory that follows is taken from such. It will be stated however that the definition of the angle bracket operator operating on a function $\bullet$ is inspired from the inner product defined on the function space operating on $\bullet$ with one. That is,
+\begin{align*}
+	\Angle{\bullet} &= \Angle{\bullet, 1}
+\end{align*}
+
 The finite element method expressed generically for the fusion modes of full and kiss-and-run takes a weak formulation
 \begin{align*}
 	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{\frac{D(s)}{R(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s}}
@@ -457,9 +604,28 @@ for $\Gamma$, $s$, $D(s)$, $R(s)$, and $\omega(s)$ defined by the fusion mode mo
 \section{Conservation of Mathematical Principles}
 By the involvedness of the derivation and for the testing of implementation, the developed model is investigated for validity through application of the first principles it is derived from.
 
-\subsection{Conservation of Mass}
-\subsection{Stability}
-\subsection{Non-Increasing Concentration Dynamics}
+\subsection{Stability and Conservation of Mass}
+The finite element method is unconditionally stable for this problem. To see this, note that the weak form given above is valid for arbitrary $w$. Choosing $w = 1$,
+\begin{align*}
+	0 &= \Angle{\pdv{u(s, t)}{t}} = \pdv{t} \Angle{u(s, t)}
+\end{align*}
+which is also a statement of conservation. This is to say, the total concentration of proteins is preserved for all time.
+
+In function space theory, this relationship would be expressed with the $\mathcal{L}^1$ norm.
+
+\subsection{}
+Another essential feature of the model must be that TODO.
+
+To see this, let $w = u(s, t)$ be time-dependent. Note that in the algebra and calculus manipulations in the derivations, the test functions were never subjected to the time derivative\footnote{Author note: check!}.
+\begin{align*}
+	0 &= \Angle{u(s)\pdv{u(s, t)}{t}} + \Angle{\frac{D(s)}{R(s)} \Par{\pdv{u(s, t)}{s}}^2} \\
+	&= \Angle{\frac{1}{2} \pdv{t}\Par{u^2(s, t)}} + \Angle{\frac{D(s)}{R(s)} \Par{\pdv{u(s, t)}{s}}^2} \\
+	&= \frac{1}{2} \pdv{t} \Angle{u^2(s, t)} + \Angle{\frac{D(s)}{R(s)} \Par{\pdv{u(s, t)}{s}}^2} \\
+	\Rightarrow \pdv{t} \Angle{u^2(s, t)} &= -2 \Angle{\frac{D(s)}{R(s)} \Par{\pdv{u(s, t)}{s}}^2}
+\end{align*}
+where the $\Angle\bullet$ on the RHS is always positive, thus any change of concentration level over time is TODO.
+
+In function space theory, this relationship would be expressed with the $\mathcal{L}^2$ norm.
 
 \section{Spatial Discretisation}
 Select positive integers $p_j$ and $P$ such that
@@ -509,7 +675,7 @@ and impose this by substitution so
 \begin{align*}
 	0 &= \pdv{U_q(t)}{t} \Angle{\Lambda_q(s) \Lambda_p(s)} + U_q(t) \Angle{\frac{D(s)}{R(s)} \pdv{\Lambda_q(s)}{s} \pdv{\Lambda_p(s)}{s}}
 \end{align*}
-in Einstein notation.
+in Einstein notation for clarity.
 
 Define
 \begin{align*}
@@ -521,6 +687,7 @@ so we have our system
 \begin{align*}
 	0 &= M \dv{\vec{U}(t)}{t} + S \vec{U}(t)
 \end{align*}
+with mass matrix $M$ and stiffness matrix $S$.
 
 \subsection{Taming Discontinuity}
 A Heaviside transition of parameter values is located at the junction in both fusion modes. An optimal selection of spatial grid spacing minimizes the possibility of violating the law of conservation. This motivates placing a large concentration of points around the junction point. The junction itself must also be a grid point.
@@ -588,12 +755,13 @@ For clarity, define
 \end{align*}
 
 \section{Mass Matrix}
+For the main diagonal,
 \begin{align*}
 	\Brack{M}_{pp} &= \Angle{\Lambda_p^2(s)} \\
-	&= 2\pi \int_\Gamma \R(s) \Lambda_p^2(s) \dd{s} \\
-	&= 2\pi \Par{I_{\bbP_+}(p) \int_{s_{p-1}}^{s_p} \R(s) \frac{s - s_{p-1}}{h_p} \dd{s} + I_{\bbP_-}(p) \int_{s_p}^{s_{p+1}} \R(s) \frac{s_{p+1} - s}{h_{p+1}} \dd{s}}
+	&= \int_\Gamma \R(s) \Lambda_p^2(s) \dd{s} \\
+	&= I_{\bbP_+}(p) \int_{s_{p-1}}^{s_p} \R(s) \frac{s - s_{p-1}}{h_p} \dd{s} + I_{\bbP_-}(p) \int_{s_p}^{s_{p+1}} \R(s) \frac{s_{p+1} - s}{h_{p+1}} \dd{s}
 \end{align*}
-
+where the first integral is
 \begin{align*}
 	& \int_{s_{p-1}}^{s_p} \R(s) \frac{s - s_{p-1}}{h_p} \dd{s} \\
 	&\quad = \frac{1}{h_p} \int_{s_{p-1}}^{s_p} \R(s) \Par{s - s_{p-1}} \dd{s} \\
@@ -605,7 +773,7 @@ For clarity, define
 		\R(s_p) h_p + 2 \R(s_{p-\nf12}) h_p
 	}
 \end{align*}
-
+and the second integral is
 \begin{align*}
 	& \int_{s_p}^{s_{p+1}} \R(s) \frac{s_{p+1} - s}{h_{p+1}} \dd{s} \\
 	&\quad = \frac{1}{h_p} \int_{s_p}^{s_{p+1}} \R(s) \Par{s_{p+1} - s} \dd{s} \\
@@ -617,51 +785,49 @@ For clarity, define
 		\R(s_p) h_{p+1} + 2 \R(s_{p+\nf12} h_{p+1})
 	}
 \end{align*}
-
-So
+so
 \begin{align*}
-	\Brack{M}_{pp} &\approx \frac{\pi}{3} \Par{I_{\bbP_+}(p) h_p \Brack{
+	\Brack{M}_{pp} &\approx \frac{1}{6} \Par{I_{\bbP_+}(p) h_p \Brack{
 		\R(s_p) + 2 \R(s_{p-\nf12})
 	} + I_{\bbP_-}(p) h_{p+1} \Brack{
 		\R(s_p) + 2 \R(s_{p+\nf12} )
 	}}
 \end{align*}
-
+For the off-diagonals,
 \begin{align*}
 	\Brack{M}_{p-1, p} &= \Angle{\Lambda_{p-1}(s) \Lambda_p(s)} \\
-	&= 2\pi \int_\Gamma \R(s) \Lambda_{p-1}(s) \Lambda_p(s) \dd{s} \\
-	&= \frac{2\pi}{h_p^2} \int_{s_{p-1}}^{s_p} \R(s) \Par{s_p - s} \Par{s - s_{p-1}} \dd{s} \\
-	&\approx \frac{\pi}{3h_p} \Brack{
+	&= \int_\Gamma \R(s) \Lambda_{p-1}(s) \Lambda_p(s) \dd{s} \\
+	&= \frac{1}{h_p^2} \int_{s_{p-1}}^{s_p} \R(s) \Par{s_p - s} \Par{s - s_{p-1}} \dd{s} \\
+	&\approx \frac{1}{6h_p} \Brack{
 		4 \R(s_{p-\nf12}) \Par{s_p - \frac{s_{p-1} + s_p}{2}} \Par{\frac{s_{p-1} + s_p}{2} - s_{p-1}}
 	}
 \end{align*}
 yielding
 \begin{align*}
-	\Brack{M}_{p-1, p} &\approx \frac{\pi h_p}{3} \R(s_{p-\nf12})
+	\Brack{M}_{p-1, p} &\approx \frac{h_p}{6} \R(s_{p-\nf12})
 \end{align*}
 
 \section{Stiffness Matrix}
+For the main diagonal,
 \begin{align*}
 	\Brack{S}_{pp} &= \Angle{\frac{D(s)}{R(s)} \Par{\pdv{\Lambda_p(s)}{s}}^2} \\
-	&= 2\pi \int_\Gamma \D(s) \Par{\pdv{\Lambda_p(s)}{s}}^2 \dd{s} \\
-	&= 2\pi \Par{I_{\bbP_+}(p) \int_{s_{p-1}}^{s_p} \D(s) \frac{1}{h_p^2} \dd{s} + I_{\bbP_-}(p) \int_{s_p}^{s_{p+1}} \D(s) \frac{1}{h_{p+1}^2} \dd{s}} \\
-	&= 2\pi \Par{\frac{I_{\bbP_+}(p)}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s} + \frac{I_{\bbP_-}(p)}{h_{p+1}^2} \int_{s_p}^{s_{p+1}} \D(s) \dd{s}}
+	&= \int_\Gamma \D(s) \Par{\pdv{\Lambda_p(s)}{s}}^2 \dd{s} \\
+	&= I_{\bbP_+}(p) \int_{s_{p-1}}^{s_p} \D(s) \frac{1}{h_p^2} \dd{s} + I_{\bbP_-}(p) \int_{s_p}^{s_{p+1}} \D(s) \frac{1}{h_{p+1}^2} \dd{s} \\
+	&= \frac{I_{\bbP_+}(p)}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s} + \frac{I_{\bbP_-}(p)}{h_{p+1}^2} \int_{s_p}^{s_{p+1}} \D(s) \dd{s}
 \end{align*}
-
+and the off diagonals,
 \begin{align*}
 	\Brack{S}_{p-1, p} &= \Angle{\frac{D(s)}{R(s)} \pdv{\Lambda_{p-1}(s)}{s} \pdv{\Lambda_p(s)}{s}} \\
-	&= 2\pi \int_\Gamma \D(s) \pdv{\Lambda_{p-1}(s)}{s} \pdv{\Lambda_p(s)}{s} \dd{s} \\
-	&= 2\pi \int_{s_{p-1}}^{s_p} \D(s) \frac{-1}{h_p^2} \dd{s} \\
-	&= \frac{-2\pi}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s}
+	&= \int_\Gamma \D(s) \pdv{\Lambda_{p-1}(s)}{s} \pdv{\Lambda_p(s)}{s} \dd{s} \\
+	&= \int_{s_{p-1}}^{s_p} \D(s) \frac{-1}{h_p^2} \dd{s} \\
+	&= \frac{-1}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s}
 \end{align*}
 
 \chapter{TIRF Microscopy Model}
-The final component of the intended model incorporation of parameters involved in TIRF Microscopy which limit the resolution of observations for fusion and diffusion dynamics in space and time.
+The final component of the intended  model is incorporation of parameters involved in TIRF Microscopy which limit the resolution of observations for fusion and diffusion dynamics in space and time.
 
 \section{TIRF Microscopy Zone}
-Due to the TODO, observations are limited to a depth below the TODO.
-
-Let this depth be denoted $d_m > 0$. The viewing angle for full and KNR fusion is thus
+By nature of the evanescent wave, observations are limited to a depth below the viewing platform. Let this depth be denoted $d_m > 0$. The viewing angle for full and kiss-and-run fusion is thus
 \begin{align*}
 	\varphi_m &= \min\Brace{\pi, \acos\Par{1 - \frac{d_m}{\R}}} \\
 	\phi_m &= \max\Brace{\pi, \acos\Par{1 - \frac{d_m}{\Rv}}} \\
