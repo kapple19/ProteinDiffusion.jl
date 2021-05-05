@@ -35,8 +35,17 @@
 \maketitle
 \tableofcontents
 
-\chapter*{Abstract}
+\chapter{Introduction}
+\section{Abstract}
 Protein delivery to a cell membrane consists of two alternative fusion modes that contrast in energy expenditure and resource-cost. Thus, identifying a cell's bias to either of the two modes can suggest the process acting in the cell. However, current experimental and observational methods for time-dependent fusion events are limited in resolution, obscuring the differences between the two modes. We model both modes, simulate over the parameters spaces of known values for mammalian cells, and compare the theoretical evolution of the fusion and diffusion process. Failure to distinguish the two modes in simulation with infinite resolution can suggest the impossibility in making distinctions with limited resolution. On the other hand, successful distinctions in simulations can suggest the type of observations that may provide further resolution of the process in the laboratory setting.
+
+\section{Reading}
+This document is a detailed description of the biological and experimental background, the mathematical model, programmed implementation, and interpretation of results. The audience are graduates and above who have familiarity with the fields of cell biology and the finite element method. Needless to say, the reader can skip to the interpretation at the end of the document.
+
+The first part details the biological background, giving context for the motivation behind developing the diffusion model.
+The second part provides the mathematical derivation of the model, approximately to a one-to-one relationship with the biological background given.
+The third part gives a summary of the implementation in the Julia programming language, including the application programming interface (API) from a selection of biological parameters.
+The fourth part gives an interpretation of the model results, providing rationale for conclusions.
 
 \part{Cell and Protein Dynamics}
 \chapter{Structure}
@@ -336,6 +345,13 @@ with
 \end{align*}
 for $\Gamma$, $s$, $D(s)$, $R(s)$, and $\omega(s)$ defined by the fusion mode model.
 
+\section{Conservation of Mathematical Principles}
+By the involvedness of the derivation and for the testing of implementation, the developed model is investigated for validity through application of the first principles it is derived from.
+
+\subsection{Conservation of Mass}
+\subsection{Stability}
+\subsection{Non-Increasing Concentration Dynamics}
+
 \section{Spatial Discretisation}
 Select positive integers $p_j$ and $P$ such that
 \begin{align*}
@@ -548,7 +564,7 @@ Let this depth be denoted $d_m > 0$. The viewing angle for full and KNR fusion i
 \section{Ring Intensity}
 
 \part{Implementation}
-\chapter{API}
+\chapter{Application Programming Interface}
 \section{Fusion Modes}
 \section{Diffusion}
 \section{Intensity}
@@ -556,6 +572,8 @@ Let this depth be denoted $d_m > 0$. The viewing angle for full and KNR fusion i
 \subsection{TIRF Zone}
 \subsection{Spot Intensity}
 \subsection{Ring Intensity}
+
+\chapter{Tests}
 
 \chapter{Model Usage}
 Due to the diminutive nature of cells and vesicles, the model implementation would require a very small stepping size. Fortunately, the units used in the model only require consistency, thus input units are specified when used.
