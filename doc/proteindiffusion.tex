@@ -3,7 +3,7 @@
 \author{Aaron Kaw}
 \date{}
 
-\usepackage[fleqn]{amsmath}
+\usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{physics}
 \usepackage{nicefrac}
@@ -12,7 +12,9 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{graphicx}
 
-\graphicspath{{../img}}
+\graphicspath{
+	{../imgs/cellbiology/}
+}
 
 \newcommand\Par[1]{{ \left({#1}\right) }}
 \newcommand\Brack[1]{{ \left[{#1}\right] }}
@@ -42,7 +44,7 @@
 
 \chapter{Introduction}
 \section{Abstract}
-Protein delivery to a cell membrane consists of two alternative fusion modes that contrast in energy expenditure and resource-cost. Thus, identifying a cell's bias to either of the two modes can suggest the process acting in the cell \cite{he2007debate}. However, current experimental and observational methods for time-dependent fusion events are limited in resolution, obscuring the differences between the two modes. We model both modes, simulate over the parameters spaces of known values for mammalian cells, and compare the theoretical evolution of the fusion and diffusion process. Failure to distinguish the two modes in simulation with infinite resolution can suggest the impossibility in making distinctions with limited resolution. On the other hand, successful distinctions in simulations can suggest the type of observations that may provide further resolution of the process in the laboratory setting.
+Protein delivery to a cell membrane consists of two alternative fusion modes that contrast in energy expenditure and resource-cost. Thus, identifying a cell's bias to either of the two modes can suggest the process acting in the cell. However, current experimental and observational methods for time-dependent fusion events are limited in resolution, obscuring the differences between the two modes. We model both modes, simulate over the parameters spaces of known values for mammalian cells, and compare the theoretical evolution of the fusion and diffusion process. Failure to distinguish the two modes in simulation with infinite resolution can suggest the impossibility in making distinctions with limited resolution. On the other hand, successful distinctions in simulations can suggest the type of observations that may provide further resolution of the process in the laboratory setting.
 
 \section{Reading}
 This document is a detailed description of the biological and experimental background, the mathematical model, programmed implementation, and interpretation of results. The audience are graduates and above who have familiarity with the fields of cell biology and the finite element method. Needless to say, the reader can skip to the interpretation at the end of the document.
@@ -62,7 +64,13 @@ The topic of this document is effectively divided into [?] ordered stages, found
 \part{Cell and Protein Dynamics}
 \chapter{Structure}
 \section{Cells}
-A typical mammalian cell has a diameter of around 10 micrometers [REF]. Cells are surrounded by a largely impermeable membrane with a typical thickness of 3--10 nanometers [REF]. The extremely thin nature of the membrane can be demonstrated by scaling the cell size up to that of a watermelon, where the resulting membrane thickness becomes that of a sheet of paper. This membrane is composed of phospholipids, which have hydrophilic heads and hydrophobic tails as shown in Figure TODO.
+Mammalian cells range in volume from 100 to 10'000 micrometers, surrounded by a largely impermeable membrane with a typical thickness of 4 to 10 nanometers \cite{milo2010bionumbers}. The extremely thin nature of the membrane can be demonstrated by scaling the cell size up to that of a watermelon, where the resulting membrane thickness becomes that of a sheet of paper. This membrane is composed of phospholipids, which have hydrophilic heads and hydrophobic tails as shown in Figure TODO.
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 0.5\textwidth]{phospholipid_membrane.png}
+	\caption{Visualisation of the phospholipid structure of cell membranes. Reproduced from \cite{soult2020phospholipids}}
+\end{figure}
 
 Phospholipids react to the exposure of water [REF]. When a collection of phospholipids are placed in an aqueous environment, the hydrophobic tails are repelled from the water, whilst the heads are attracted to the water. Typical lipid structures are shown in Figure TODO. These include manifold spheres with tails on the inside and heads on the outside (micelle), or sheet-like structures referred to as a phospholipid bilayer. These bilayers can form closed objects such as liposomes. Liposomes are generally very small in diameter [REF]. Cellular lipid bilayers are also known as membranes.
 
@@ -879,6 +887,10 @@ One metric for mode discernment in the theoretical space is the rate of decrease
 \section{Frame Rate}
 
 \chapter{Discernment}
+\section{General Conclusions}
+\section{Applications}
+\subsection{Beta Cells}
+\cite{marchetti2017pancreatic} reported an average $\beta$ cell radius of $R_c = 10$ $\mu$m.
 
 \bibliography{proteindiffusion}
 \bibliographystyle{apalike}
