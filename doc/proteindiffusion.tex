@@ -13,7 +13,7 @@
 \usepackage{graphicx}
 
 \graphicspath{
-	{../imgs/cellbiology/}
+	{../imgs/cell_biology/}
 }
 
 \newcommand\Par[1]{{ \left({#1}\right) }}
@@ -47,14 +47,14 @@
 Protein delivery to a cell membrane consists of two alternative fusion modes that contrast in energy expenditure and resource-cost. Thus, identifying a cell's bias to either of the two modes can suggest the process acting in the cell. However, current experimental and observational methods for time-dependent fusion events are limited in resolution, obscuring the differences between the two modes. We model both modes, simulate over the parameters spaces of known values for mammalian cells, and compare the theoretical evolution of the fusion and diffusion process. Failure to distinguish the two modes in simulation with infinite resolution can suggest the impossibility in making distinctions with limited resolution. On the other hand, successful distinctions in simulations can suggest the type of observations that may provide further resolution of the process in the laboratory setting.
 
 \section{Reading}
-This document is a detailed description of the biological and experimental background, the mathematical model, programmed implementation, and interpretation of results. The audience are graduates and above who have familiarity with the fields of cell biology and the finite element method. Needless to say, the reader can skip to the interpretation at the end of the document.
+This document is a detailed description of the biological and experimental background, the mathematical model, programmed implementation, and interpretation of results. The audience is math graduates who have familiarity with the fields of cell biology. Needless to say, the reader can skip to the interpretation at the end of the document.
 
 The first part details the biological background, giving context for the motivation behind developing the diffusion model.
 The second part provides the mathematical derivation of the model, approximately to a one-to-one relationship with the biological background given.
 The third part gives a summary of the implementation in the Julia programming language, including the application programming interface (API) from a selection of biological parameters.
 The fourth part gives an interpretation of the model results, providing rationale for conclusions.
 
-The topic of this document is effectively divided into [?] ordered stages, found as a structural theme in the contextual, model, implementation, and interpretation descriptions that the reader is encouraged to observe when reading:
+The topic of this document is effectively divided into three ordered stages, found as a structural theme throughout the document:
 \begin{enumerate}
 	\item Fusion
 	\item Diffusion
@@ -62,8 +62,8 @@ The topic of this document is effectively divided into [?] ordered stages, found
 \end{enumerate}
 
 \part{Cell and Protein Dynamics}
-\chapter{Structure}
-\section{Cells}
+\chapter{Cell and Protein Biology}
+\section{Cell}
 Mammalian cells range in volume from 100 to 10'000 micrometers and are surrounded by a largely impermeable membrane with a typical thickness of 4 to 10 nanometers \cite{milo2010bionumbers}. The extremely thin nature of the membrane can be demonstrated by scaling the cell size up to that of a watermelon, where the resulting membrane thickness becomes that of a sheet of paper. This membrane is composed of phospholipids, which have hydrophilic heads and hydrophobic tails as shown in \autoref{fig:phospholipid_membrane}.
 
 \begin{figure}
@@ -76,7 +76,7 @@ Mammalian cells range in volume from 100 to 10'000 micrometers and are surrounde
 Phospholipids react to the exposure of water. When a collection of phospholipids are placed in an aqueous environment, the hydrophobic tails are repelled from the water, whilst the heads are attracted to the water \cite{yeagle1978phospholipid}, also illustrated in \autoref{fig:phospholipid_membrane}. Cellular lipid bilayers are also referred to as membranes.
 
 \section{Proteins}
-The outer cell membrane is largely impermeable. In order to transport molecules such as glucose and proteins into and out of the cell, other protein structures are integrated into the structure of the membrane. Such proteins appear in many forms including peripheral, channel, integral, and internal, taking up up to 30\% of the membrane surface area. These molecules carry out specific functions and are free to move laterally on the membrane. Thus, one may think of these proteins on cell membranes as objects free to move laterally in a viscous fluid \cite{marrink2019computational}.
+The outer cell membrane is largely impermeable. In order to transport molecules such as glucose and proteins into and out of the cell, other protein structures are integrated into the structure of the membrane. Such proteins appear in many forms including peripheral, channel, integral, and internal, taking up up to 30\% of the membrane surface area. These molecules carry out specific functions and are free to move laterally on the membrane. Thus, one may think of these proteins on cell membranes as objects free to move laterally in a viscous fluid \cite{marrink2019computational} hence the additional nomenclature of plasma membrane.
 
 Some cellular functions the proteins enable include \cite{alberts2002protein}:
 \begin{itemize}
@@ -87,29 +87,68 @@ Some cellular functions the proteins enable include \cite{alberts2002protein}:
 	\item providing structural support.
 \end{itemize}
 
-A visual representation of membrane-embedded proteins is given in TODO.
+A visual representation of membrane-embedded proteins is given in \autoref{fig:membrane_proteins}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width = \textwidth]{membrane_proteins.png}
+	\caption{A patch of phospholipid bilayer membrane with embedded cellular proteins. Reproduced from \cite{openstax2012plasma}.}
+	\label{fig:membrane_proteins}
+\end{figure}
 
 \section{Vesicles}
-Cells have the capacity to change the amount of membrane-embedded proteins on the outer cell membrane via vesicles. Such vesicles also consist of a phosopholipid bilayer structure, and membrane contents such as proteins. Vesicles deliver their contents to different locations inside and outside the cell by merging their membrane with that of the destination. This delivers the fluid contents contained inside the vesicle to the extracellular volume (exocytosis), such as happens in neural signalling, but also, more importantly for the current study, the fusion delivers the membrane-embeeded contents from the vesicle to the cell [REF].
+Cells have the capacity to change the amount of membrane-embedded proteins on the outer cell membrane via vesicles \cite{ales2007gene}. Vesicles deliver their contents to different locations inside and outside the cell by merging their membrane with that of the destination, or detaching from their origin. This is possible due to sharing a phosopholipid bilayer design, which likewise carries membrane-embedded proteins.
 
-\chapter{Dynamics}
-\section{Vesicle Fusion}
-The delivery of molecules via vesicles engages in dynamics of membrane fusion. Various other membrane proteins perform roles such as acting as grappling hooks to initiate the vesicle-cell membrane fusion process. The event itself requires energy due to potential exposure of the lipid tails to the aqueous environment, or the temporary bending of lipid bilayers. Once fusion has begun, one of two known modes are employed.
+In a process termed exocytosis, a cell's internal vesicle merges with the cell membrane and the vesicle's internal fluid contents is released to the extracellular volume, such as happens in neural signalling. Additionally, and more importantly for the current study, the fusion delivers the membrane-embedded vesicle contents to the cell [REF].
 
-\cite{sochacki2012imaging}.
+The reverse process is termed endocytosis, wherein a small section of cell membrane buds into a vesicle, usually containing membrane-embedded and/or internally contained molecules for transport. The vesicle is then transported to the destination. Outside the scope of study, both processes have extracellular equivalents.
+
+The delivery of molecules via vesicles engages in dynamics of membrane fusion. Various other membrane proteins perform roles such as acting as grappling hooks in the initiation of vesicle-cell membrane fusion \cite{han2017multifaceted}. The event itself requires energy due to potential exposure of the lipid tails to the aqueous environment, or the temporary bending of lipid bilayers. Once fusion has begun, one of two known modes are employed \cite{harata2006kiss}.
 
 \subsection{Full-Collapse Fusion}
-In the Full-Colapse (FC) Fusion mode, the vesicle membrane bends to conform to the curvature of the cellular membrane. An illustration is given in TODO.
+In the Full-Colapse (FC) Fusion mode, the vesicle membrane bends to conform to the curvature of the cellular membrane, and any membrane-embedded contents naturally become part of the cell membrane. An illustration is given in \autoref{fig:full_collapse_fusion_multiples}.
+
+\begin{figure}
+	\centering
+
+	\includegraphics[width = 0.3\textwidth]{fc_fusion/2vesicle.png}
+	\includegraphics[width = 0.3\textwidth]{fc_fusion/3transport.png}
+	\includegraphics[width = 0.3\textwidth]{fc_fusion/4dock.png}
+
+	\includegraphics[width = 0.3\textwidth]{fc_fusion/5pore.png}
+	\includegraphics[width = 0.3\textwidth]{fc_fusion/6bend.png}
+	\includegraphics[width = 0.3\textwidth]{fc_fusion/7conform.png}
+
+	\caption{A vesicle underoing full-collapse fusion.}
+	\label{fig:full_collapse_fusion_multiples}
+\end{figure}
 
 \subsection{Kiss-and-Run Fusion}
-Alternative to FC fusion is a process wherein the vesicle remains mostly intact in its spherical shape while the proteins flow from the vesicle onto the cell. After a period of time the vesicle detaches and returns to the cell interior. This process is aptly named the Kiss-and-Run (KR) Fusion mode. An illustration is given in TODO.
+Alternative to FC fusion is a process wherein the vesicle remains mostly intact in its spherical shape while the proteins flow from the vesicle onto the cell. A pore is formed at the junction of the vesicle-cell membranes, and such shape maintained over the deliver process. After a period of time the vesicle detaches and returns to the cell interior. This process is aptly named the Kiss-and-Run (KR) Fusion mode \cite{alabi2013perspectives}. An illustration is given in \autoref{fig:kiss_run_fusion_multiples}.
 
-\cite{alabi2013perspectives}
+\begin{figure}
+	\centering
+
+	\includegraphics[width = 0.3\textwidth]{kr_fusion/3transport.png}
+	\includegraphics[width = 0.3\textwidth]{kr_fusion/4dock.png}
+	\includegraphics[width = 0.3\textwidth]{kr_fusion/5pore.png}
+
+	\includegraphics[width = 0.3\textwidth]{kr_fusion/6diffuse.png}
+	\includegraphics[width = 0.3\textwidth]{kr_fusion/7detach.png}
+	\includegraphics[width = 0.3\textwidth]{kr_fusion/8recycle.png}
+
+	\caption{A vesicle underoing kiss-and-run fusion.}
+	\label{fig:kiss_run_fusion_multiples}
+\end{figure}
+
+While KR fusion is energetically unfavourable over FC, it enables the recycling and reuse of vesicles, which can be essential in scenarios where vesicles are in short supply \cite{harata2006kiss}. Otherwise energy is expended in the re-creation of vesicles through budding off the cell membrane, or from the cell's interior\footnote{Check: can cells produce vesicles from their interior?}. Such energy usage may be more than is expended in KR fusion\footnote{Also check}.
 
 \section{Diffusion}
-The arrival of membrane proteins at the cell membrane from the fused vesicle results in a local concentration spike. In some delivery contexts the following stage finds the proteins remaining clustered, as observed using STED \cite{willig2006sted}.
+Author note: edit: the following events/states are not alternatives.
 
-The energetically favourable alternative can also take place, wherein the proteins redistribute to equilibrate the concentration across the membrane surface [REF]. This process of diffusion is the central focus of study for this paper.
+The arrival of membrane proteins at the cell membrane from the fused vesicle can result in a local concentration spike. In some delivery contexts the following stage finds the proteins remaining clustered by the enforcement of other cell-membranous contents \cite{lillemeier2006plasma, willig2006sted}.
+
+The energetically favourable alternative is the topic of study, wherein the proteins redistribute to equilibrate the concentration across the membrane surface [REF], as observed in [REF]. This process of diffusion is the central focus of study for this paper.
 
 While diffusion in cells can refer to the transport of molecules between the cellular interior and exterior facilitated by vesicles and proteins [REF], this study uses the term diffusion to refer to the lateral movement of the proteins within the confines of the cellular membrane [REF].
 
@@ -121,15 +160,18 @@ Due to TODO, the delivery of membrane proteins via diffusion typically does not 
 \section{Energetics}
 Vesicular fusion requires energy [REF]. The synthesis of a vesicle also costs resources and energy. Thus, kiss-and-run fusion enables resource and energy saving at the cost of maintaining the small delivery pore at the junction of the two membrane manifolds, which however requires energy. In contrast, full fusion results in the vesicle membrane incorporated into the cell membrane. This costs less energy since the membranes converge to an energetic equilibrium. However, any further protein delivery requires the synthesis of more vesicles [REF].
 
-\chapter{Observations}
+\chapter{Active Research}
+\section{Observations}
 A cell's bias toward either of the two delivery modes may indicate the underlying processes and mechanisms acting in the cell, with regards to energy expenditure and available resources. This is one motivation for tracking vesicular delivery modality.
 
-\section{Electron Micrography}
+\cite{sochacki2012imaging}.
+
+\subsection{Electron Micrography}
 Electron micrographs are of slices of frozen cells. This is because the process of obtaining the image is long compared to changes and movements within the cells. Thus, whilst high resolution of the cell such as its surface structure is obtained, there is less information regarding the cellular dynamics.
 
 The processes of both vesicular fusion modes have been observed in electron micrography, as shown in Figure TODO.
 
-\section{TIRF Microscopy}
+\subsection{TIRF Microscopy}
 In Total Internal Reflection Fluorescence (TIRF) Microscopy (TIRFM), or Evanescent Wave Microscopy, proteins are tagged with a fluorescent molecule. The surface to be observed is placed on a microscope coverslip and a laser beam shone on the sample, incident at an angle greater than the critical angle for the coverslip, causing total internal reflection. Not all the energy of the incident light is reflected however, and the evanescent wave, which penetrates the sample, causes the excitation of the fluorophores to depths of around 100 nm, with intensity decaying exponentially. This enables the observation of molecules at the surface of the sample [REF].
 
 In live cell imaging, a sequence of images are recorded, producing a movie of changes occuring at the cell surface [REF].
@@ -140,18 +182,18 @@ Experimentally, it is often easier to label the membrane embedded contents rathe
 
 The main feature of TIRFM observations of vesicle fusions is the brightness of the spots that appear when the vesicle fuses. An example is shown as the red line plot of the centre profile in Figure TODO. Notice the spike in brightness due to the fusion of the vesicle to the cell, when the vesicle membrane has a high concentration of vesicles relative to the local cell membrane. The subsequent decay in the intensity is due to the diffusion of the proteins from the initial spot region onto the cell membrane [REF].
 
-\subsection{Frame Rate}
+\subsubsection{Frame Rate}
 Overexposure of the fluoresced proteins results in bleaching [REF]. As a result, TIRFM snapshots are either of high frame rate for a short period of time, or low frame rate over a longer period of time [REF].
 
-\subsection{Observation Zone}
+\subsubsection{Observation Zone}
 As aforementioned, observable fluorescence decays exponentially with depth from the viewing platform [REF] which provides the advantage of limiting dynamics observations to and around the surface, with the disadvantage of no observation for cellular internals. The latter could however deem depth distinctions difficult.
 
 Also recorded in TIRFM are the approach and departure of vesicles via the gradual appearance of a local spot brightness in the former, and the gradual disappearance in the latter.
 
-\section{Stimulated Emission Depletion}
+\subsection{Stimulated Emission Depletion}
 \cite{willig2006sted}.
 
-\chapter{Active Research}
+\section{Applications}
 \begin{itemize}
 	\item Therapeutic drug design targeting membrane proteins.
 	\item Specific membrane protein extractions via detergents.
@@ -176,6 +218,7 @@ Also modelled is the TIRFM observation zone, wherein the fluorescence decays exp
 
 \section{Existing Models}
 \cite{marrink2019computational}.
+\cite{jorgensen2017computer}.
 
 \section{Notation}
 The standard Cartesian coordinate system in three dimensions are described using $\vec{x} = (x, y, z)$ with positive directions defined via the right-hand rule. The vertical coordinate $z$ is replaced in some modelling contexts with $\xi$ and $\zeta$, which are simply vertical offsets sharing horizontal coordinates $(x, y)$.
@@ -915,6 +958,9 @@ One metric for mode discernment in the theoretical space is the rate of decrease
 \section{Applications}
 \subsection{Beta Cells}
 \cite{marchetti2017pancreatic} reported an average $\beta$ cell radius of $R_c = 10$ $\mu$m.
+
+\subsection{Vesicles}
+Vesicle range in radius from 50 to 75 nanometers \cite{ales2007gene}\footnote{\url{https://www.sciencedirect.com/topics/biochemistry-genetics-and-molecular-biology/clathrin}}.
 
 \bibliography{proteindiffusion}
 \bibliographystyle{apalike}
