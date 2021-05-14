@@ -43,7 +43,7 @@ end
 	raw::RawOutput;
 	n = 0:min(Nt′, length(raw.U))-1)
 
-	pal = [c for c ∈ palette(:blues, Nt′)[Nt′ .- n]]
+	pal = [c for c ∈ palette(:blues, Nt′)[Nt′ .- n]] |> reverse
 	color_palette := pal
 	# seriescolor --> pal
 	label --> ""

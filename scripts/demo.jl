@@ -18,9 +18,9 @@ cell_pars = (
 		Dc = 2e2
 	),
 	Adipocyte = (
-		Rv = 75e-3, # [μm] GLUT4 vesicles
-		Rc = 17.0, # [μm] adipocytes (smaller of bimodal size distribution)
-		Rj = 60e-3, # [μm] pore junction radius
+		Rv = 75.0, # [μm] GLUT4 vesicles
+		Rc = 17e3, # [μm] adipocytes (smaller of bimodal size distribution)
+		Rj = 60.0, # [μm] pore junction radius
 		Dv = 1.0,
 		Dc = 0.2
 	)	
@@ -45,8 +45,12 @@ function run_demo(CellType::Symbol)
 
 	display.(
 		[
-			pfraw, pfarc, pfint,
-			pkraw, pkarc, pkint
+			pfraw,
+			pfarc,
+			pfint,
+			pkraw,
+			pkarc,
+			pkint
 		]
 	)
 
@@ -60,7 +64,7 @@ function run_demo(CellType::Symbol)
 	savefig(pkint, "plots/$(celltype)_knrfusion_int.png")
 end
 
-## Run Examples
+# Run Examples
 run_demo(:Unrealistic)
 run_demo(:Beta)
 run_demo(:Adipocyte)

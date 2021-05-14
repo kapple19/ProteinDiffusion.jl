@@ -46,18 +46,51 @@ function diffusion_fem(
 	S = SymTridiagonal(Sdiag, Soffd)
 
 	# Solving Matrix Equation
-	diffuse!(U, Δtn) = push!(
-		U, OffsetArray(
-			(parent(M) + Δtn * parent(S)) \ (parent(M) * parent(U[end])),
-			Origin(0)
-		)
+	diffuse(U, Δtn) = OffsetArray(
+		(parent(M) + Δtn * parent(S)) \ (parent(M) * parent(U)),
+		Origin(0)
 	)
 
-	R²(s) = R(s)^2
-	Δt′ = R²(0.0) * R²(sP) / D(0.0) / D(sP) / 1e3
-	tol = 1e-3
+	diffuse!(U, Δtn) = push!(U, diffuse(U[end], Δtn))
+
+	function fem_basestepsize(U₀)
+		ave(a, b) = √(a*b)
+
+		# initial bounding guess
+		Δt′ = R(0.0)^2 / D(0.0)
+		Δt₊ = 1e20Δt′
+		Δt₋ = 1e-20Δt′
+
+		# loop until diffussion stepsize is nicely scaled
+		U₁ = diffuse(U₀, ave(Δt₋, Δt₊))
+		V₀ = sum(U₀[0:pj])
+		V₁ = sum(U₁[0:pj])
+		ratio = 95/100
+		# counter = 0
+		while !isapprox(V₁, V₀*ratio, atol = 1e-4)
+			if V₁ > V₀*ratio
+				Δt₋ = ave(Δt₋, Δt₊)
+			elseif V₁ < V₀*ratio
+				Δt₊ = ave(Δt₋, Δt₊)
+			end
+			U₁ = diffuse(U₀, ave(Δt₋, Δt₊))
+			V₀ = sum(U₀[0:pj])
+			V₁ = sum(U₁[0:pj])
+
+			# counter += 1
+			# if counter > 200
+			# 	@show counter
+			# 	@show Δt₋, Δt₊
+			# 	@show V₁ / (V₀ * ratio)
+			# end
+		end
+		return ave(Δt₋, Δt₊)
+	end
+
 	t = OffsetArray([0.0], Origin(0))
 	U = OffsetArray([H.(sj .- s)], Origin(0))
+	Δt′ = fem_basestepsize(U[0])
+	tol = 1e-3
 	conv = false
 	n = 0
 

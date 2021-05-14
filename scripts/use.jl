@@ -22,6 +22,3 @@ plot(k.c) |> display
 plot(k.raw) |> display
 plot(k.arc) |> display
 plot(k.int) |> display
-
-##
-plot(f.raw)
