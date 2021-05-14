@@ -477,18 +477,6 @@ with
 	\Angle\bullet &= 2\pi \R \int_\Gamma \sin\Par{\omega(s)} \bullet \dd{s}
 \end{align*}
 
-\section{Scaling}
-Realistic vesicle-to-cell radii ratios result in diffusion occuring on very small space and time scales. In preparation for the diffusion model implementation, we select a non-dimensionalised time variables, scaled to the vesicle's post-fusion arc-length and diffusivity.
-\begin{align*}
-	\tau &= \frac{\Par{R_v \varphi_j}^2}{D_v} t
-\end{align*}
-
-The weak form becomes
-\begin{align*}
-	0 &= \Angle{\pdv{u(\phi, \tau)}{\tau} w(\varphi)}
-	+ \frac{D_v}{\Par{R_v \varphi_j}^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
-\end{align*}
-
 \chapter{Kiss-and-Run Fusion}
 \section{Fusion Parameters}
 The process of kiss-and-run fusion results in the vesicle mostly retaining its spherical shape. The cell similarly retains its shape, but both membranes attain an opening or pore of circular geometry with radius denoted $R_j$. The fused system is assigned two coordinate systems, one for each membrane with polar angles $\phi \in \Omega_v$ for the vesicle and $\psi = \Omega_c$ on the cell. The respective domains are derived as following, such that $\Abs{\Omega_v} = \phi_v$ and $\Abs{\Omega_c} = \psi_c$.
@@ -684,12 +672,6 @@ with
 		\Rc & s \in \Gamma_c
 	\end{cases} \\
 	\Angle{\bullet} &= \int \R(s) \sin\Par{\omega(s)} \bullet \dd{s}
-\end{align*}
-
-\section{Scaling}
-Realistic vesicle-to-cell radii ratios result in diffusion occuring on very small space and time scales. In preparation for the diffusion model implementation, we select a non-dimensionalised time variables, scaled to the vesicle parameters.
-\begin{align*}
-	\tau &= \frac{\Rv^2}{D_v} t
 \end{align*}
 
 \chapter{Finite Element Method}

@@ -5,63 +5,39 @@ end
 
 abstract type FusionMode <: PD end
 
-struct FullFusion <: FusionMode
-	v::Membrane
-	c::Membrane
+struct FusionFC <: FusionMode
+	ves::Membrane
+	cel::Membrane
 	R::Float64
 	ϕj::Float64
-	raw::RawOutput
-	arc::ArcLength
-	int::Intensity
 
-	function FullFusion(v::Membrane, c::Membrane)
-		Rv = v.R
-		Rc = c.R
-		Dv = v.D
-		Dc = c.D
+	function FusionFC(ves::Membrane, cel::Membrane)
+		Rv = ves.R
+		Rc = cel.R
 
 		Rv² = Rv^2
 		Rc² = Rc^2
 		R′² = Rv² + Rc²
 		R′ = √R′²
-		Rs = 2Rv*Rc/R′
+		# Rs = 2Rv*Rc/R′
 		ϕj = acos((Rc² - Rv²)/R′²)
 
-		sj = R′ * ϕj
-		sP = R′ * π
-		ω(s) = s / R′
-		R(s) = R′
-		D(s) = Dv * H(sj - s) + Dc * H(s - sj)
-
-		u∞ = (1 - cos(ϕj))/2
-
-		s, t, U, pj = diffusion_fem(sj, sP, ω, R, D, u∞)
-
-		raw = RawOutput("Full Fusion", s, t, U, pj)
-		arc = ArcLength(raw)
-		int = Intensity(raw, arc, R, ω)
-
-		return new(v, c, R′, ϕj, raw, arc, int)
+		return new(ves, cel, R′, ϕj)
 	end
 end
 
-struct KNRFusion <: FusionMode
-	v::Membrane
-	c::Membrane
+struct FusionKR <: FusionMode
+	ves::Membrane
+	cel::Membrane
 	Rj::Float64
 	Rv::Float64
 	Rc::Float64
 	φv::Float64
 	ψc::Float64
-	raw::RawOutput
-	arc::ArcLength
-	int::Intensity
 
-	function KNRFusion(v::Membrane, c::Membrane, Rj::Float64)
-		Rv = v.R
-		Rc = c.R
-		Dv = v.D
-		Dc = c.D
+	function FusionKR(ves::Membrane, cel::Membrane, Rj::Float64)
+		Rv = ves.R
+		Rc = cel.R
 
 		Rv² = Rv^2
 		Rc² = Rc^2
@@ -72,23 +48,7 @@ struct KNRFusion <: FusionMode
 		Rc′ = √Rc′²
 		φv = π - asin(Rj/Rv′)
 		ψc = π - asin(Rj/Rc′)
-		sj = Rv′ * φv
-		sP = sj + Rc′ * ψc
-		
-		φ(s) = s/Rv′
-		ψ(s) = (s - sj)/Rc′ + π - ψc
-		ω(s) = φ(s) * H(sj - s) + ψ(s) * H(s - sj)
-		D(s) = Dv * H(sj - s) + Dc * H(s - sj)
-		R(s) = Rv′ * H(sj - s) + Rc′ * H(s - sj)
-		
-		u∞ = Rv′² * (1 - cos(φv)) / (Rv′² * (1 - cos(φv)) + Rc′² * (1 - cos(ψc)))
 
-		s, t, U, pj = diffusion_fem(sj, sP, ω, R, D, u∞)
-
-		raw = RawOutput("KNR Fusion", s, t, U, pj)
-		arc = ArcLength(raw)
-		int = Intensity(raw, arc, R, ω)
-
-		return new(v, c, Rj, Rv′, Rc′, φv, ψc,  raw, arc, int)
+		return new(ves, cel, Rj, Rv′, Rc′, φv, ψc)
 	end
 end

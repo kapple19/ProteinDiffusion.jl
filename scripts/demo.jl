@@ -32,8 +32,8 @@ function run_demo(CellType::Symbol)
 	v = Membrane(Rv, Dv)
 	c = Membrane(Rc, Dc)
 
-	f = FullFusion(v, c)
-	k = KNRFusion(v, c, Rj)
+	f = DiffusionFC(v, c)
+	k = DiffusionKR(v, c, Rj)
 
 	pfraw = plot(f.raw, title = "Full Fusion: Raw Data\n" * string(CellType) * " Cell")
 	pfarc = plot(f.arc, title = "Full Fusion: Arc Length\n" * string(CellType) * " Cell")

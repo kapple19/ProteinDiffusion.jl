@@ -1,32 +1,38 @@
 Nt′ = 100
 
-# User Recipe
-# Type Recipe
-# * My type to plottable data
-# Plot Recipe
-# Series Recipe
+# @userplot CrossSection
 
-# Type Recipe for `Membrane`
-@recipe function plot(mem::Membrane)
-	ϕ = LinRange(0, 2π, 101)
+# @recipe function cross_section(fc::FCFusion)
+# 	ϕv = LinRange(-fc.ϕj, fc.ϕj, 101)
+# 	ϕc = LinRange(fc.ϕj, 2π - fc.ϕj, 101)
 
-	x = mem.R * cos.(ϕ)
-	z = mem.R * sin.(ϕ)
+# 	xv = @. fc.R * cos(π/2 - ϕv)
+# 	zv = @. fc.R * sin(π/2 - ϕv)
+# 	xc = @. fc.R * cos(π/2 - ϕc)
+# 	zc = @. fc.R * sin(π/2 - ϕc)
 
-	x, z
-end
-
-# @userplot FusionSlice
-
-# mutable struct FusionSlice{FM} where FM <: FusionMode
-# 	fm::FM      
+# 	label := ["Vesicle" "Cell"]
+# 	aspect_ratio := 1
+	
+# 	[xv, xc], [zv, zc]
 # end
 
-# @recipe function plot(fs::FusionSlice{F}) where F <: FullFusion
+# @recipe function cross_section(kr::KRFusion)
+# 	φv = LinRange(kr.φv, 2π - kr.φv, 101)
+# 	ψc = LinRange(kr.ψc, 2π - kr.ψc, 101)
+
+# 	xv = @. kr.Rv * cos(π/2 - φv)
+# 	zv = @. kr.Rv * sin(π/2 - φv)
+
+
+# 	[xv, xc], [zv, zc]
+# end
+
+# @recipe function plot(fs::FusionSlice{F}) where F <: FCFusion
 	
 # end
 
-# @recipe function plot(fs::FusionSlice{K}) where K <: KNRFusion
+# @recipe function plot(fs::FusionSlice{K}) where K <: KRFusion
 
 # end
 

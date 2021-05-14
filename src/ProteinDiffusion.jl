@@ -16,17 +16,20 @@ import IntervalArithmetic: (..)
 import Plots: palette
 import RecipesBase:
 	RecipesBase,
-	@recipe
+	@recipe,
+	@userplot
 
 export Membrane
-export FullFusion
-export KNRFusion
+export FusionFC
+export FusionKR
+export DiffusionFC
+export DiffusionKR
 
 include("preamble.jl")
 include("auxiliary.jl")
+include("fusion.jl")
 include("fem.jl")
 include("diffusion.jl")
-include("fusion.jl")
 include("plot.jl")
 
 end # module
