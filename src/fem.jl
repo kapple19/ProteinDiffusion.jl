@@ -13,7 +13,10 @@ function diffusion_fem(
 
 	function spatial_grid(p::Integer)
 		p ∉ ℙ && error("Index outside grid.")
-		p ≤ pj && return sj * (1 - (1 - p / pj)^3)
+		p == 0 && return 0.0
+		p == pj && return sj
+		p == P && return sP
+		p < pj && return sj * (1 - (1 - p / pj)^3)
 		p > pj && return sj + (sP - sj) * ((p - pj) / (P - pj))^3
 		return NaN
 	end

@@ -13,7 +13,9 @@ import Interpolations:
 	LinearInterpolation,
 	Linear
 import IntervalArithmetic: (..)
-import Plots: palette
+import Plots:
+	palette,
+	RGB
 import RecipesBase:
 	RecipesBase,
 	@recipe,

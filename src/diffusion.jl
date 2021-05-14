@@ -1,4 +1,5 @@
 abstract type DiffusionSolution <: PD end
+abstract type DiffusionMode <: DiffusionSolution end
 
 struct RawOutput <: DiffusionSolution
 	mode::String
@@ -7,8 +8,6 @@ struct RawOutput <: DiffusionSolution
 	U::NOVector64
 	pj::Int64
 end
-
-displayname(::RawOutput) = "Raw Output"
 
 struct ArcLength <: DiffusionSolution
 	mode::String
@@ -46,7 +45,42 @@ struct ArcLength <: DiffusionSolution
 	end
 end
 
-displayname(::ArcLength) = "Arc-Length Solution"
+struct AngleFC <: DiffusionSolution
+	mode::String
+	u::Function
+	v::Function
+	c::Function
+	ϕj::Float64
+	tmax::Float64
+
+	function AngleFC(fus::FusionFC, arc::ArcLength)
+		ϕ2s(ϕ) = fus.R * ϕ
+		u(ϕ, t) = arc.u(ϕ2s(ϕ), t)
+		v(ϕ, t) = arc.v(ϕ2s(ϕ), t)
+		c(ϕ, t) = arc.c(ϕ2s(ϕ), t)
+		ϕj = arc.sj / fus.R
+		return new(arc.mode, u, v, c, ϕj, arc.tmax)
+	end
+end
+
+struct AngleKR <: DiffusionSolution
+	mode::String
+	v::Function
+	c::Function
+	φmax::Float64
+	ψmin::Float64
+	tmax::Float64
+
+	function AngleKR(fus::FusionKR, arc::ArcLength)
+		φ2s(φ) = fus.Rv * φ
+		ψ2s(ψ) = arc.sj + fus.Rc * (ψ + fus.ψc - π)
+		
+		v(φ, t) = arc.v(φ2s(φ), t)
+		c(ψ, t) = arc.c(ψ2s(ψ), t)
+		
+		return new(arc.mode, v, c, fus.φv, π - fus.ψc, arc.tmax)
+	end
+end
 
 struct Intensity <: DiffusionSolution
 	mode::String
@@ -98,17 +132,16 @@ struct Intensity <: DiffusionSolution
 	end
 end
 
-displayname(::Intensity) = "Intensity"
-
-struct DiffusionFC <: DiffusionSolution
+struct DiffusionFC <: DiffusionMode
 	fus::FusionFC
 	raw::RawOutput
 	arc::ArcLength
+	ang::AngleFC
 	int::Intensity
 
 	function DiffusionFC(fus::FusionFC)
 		sj = fus.R * fus.ϕj
-		sP = fus.R * π
+		sP = π * fus.R
 
 		ω(s) = s / fus.R
 		R(s) = fus.R
@@ -117,21 +150,23 @@ struct DiffusionFC <: DiffusionSolution
 		u∞ = (1 - cos(fus.ϕj))/2
 
 		s, t, U, pj = diffusion_fem(sj, sP, ω, R, D, u∞)
-
+		
 		raw = RawOutput("Full-Collapse Fusion", s, t, U, pj)
 		arc = ArcLength(raw)
+		ang = AngleFC(fus, arc)
 		int = Intensity(raw, arc, R, ω)
 
-		return new(fus, raw, arc, int)
+		return new(fus, raw, arc, ang, int)
 	end
 end
 
 DiffusionFC(args...) = FusionFC(args...) |> DiffusionFC
 
-struct DiffusionKR <: DiffusionSolution
+struct DiffusionKR <: DiffusionMode
 	fus::FusionKR
 	raw::RawOutput
 	arc::ArcLength
+	ang::AngleKR
 	int::Intensity
 
 	function DiffusionKR(fus::FusionKR)
@@ -153,9 +188,10 @@ struct DiffusionKR <: DiffusionSolution
 
 		raw = RawOutput("Kiss-and-Run Fusion", s, t, U, pj)
 		arc = ArcLength(raw)
+		ang = AngleKR(fus, arc)
 		int = Intensity(raw, arc, R, ω)
 
-		return new(fus, raw, arc, int)
+		return new(fus, raw, arc, ang, int)
 	end
 end
 

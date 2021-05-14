@@ -64,7 +64,7 @@ function run_demo(CellType::Symbol)
 	savefig(pkint, "plots/$(celltype)_knrfusion_int.png")
 end
 
-# Run Examples
+## Run Examples
 run_demo(:Unrealistic)
 run_demo(:Beta)
 run_demo(:Adipocyte)

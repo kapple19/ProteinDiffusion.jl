@@ -26,3 +26,6 @@ plot(kr.int) |> display
 ##
 plot(fc.fus) |> display
 plot(kr.fus) |> display
+
+##
+densityslicefc(fc, 1.0)
