@@ -1,49 +1,34 @@
 Nt′ = 100
 
-# @userplot CrossSection
+@recipe function cross_section(fc::FusionFC)
+	ϕv = LinRange(-fc.ϕj, fc.ϕj, 101)
+	ϕc = LinRange(fc.ϕj, 2π - fc.ϕj, 101)
 
-# @recipe function cross_section(fc::FCFusion)
-# 	ϕv = LinRange(-fc.ϕj, fc.ϕj, 101)
-# 	ϕc = LinRange(fc.ϕj, 2π - fc.ϕj, 101)
+	xv = @. fc.R * cos(π/2 - ϕv)
+	zv = @. fc.R * sin(π/2 - ϕv)
+	xc = @. fc.R * cos(π/2 - ϕc)
+	zc = @. fc.R * sin(π/2 - ϕc)
 
-# 	xv = @. fc.R * cos(π/2 - ϕv)
-# 	zv = @. fc.R * sin(π/2 - ϕv)
-# 	xc = @. fc.R * cos(π/2 - ϕc)
-# 	zc = @. fc.R * sin(π/2 - ϕc)
-
-# 	label := ["Vesicle" "Cell"]
-# 	aspect_ratio := 1
+	label := ["Vesicle" "Cell"]
+	aspect_ratio := 1
 	
-# 	[xv, xc], [zv, zc]
-# end
+	[xv, xc], [zv, zc]
+end
 
-# @recipe function cross_section(kr::KRFusion)
-# 	φv = LinRange(kr.φv, 2π - kr.φv, 101)
-# 	ψc = LinRange(kr.ψc, 2π - kr.ψc, 101)
+@recipe function cross_section(kr::FusionKR)
+	φv = LinRange(π - kr.φv, π + kr.φv, 101)
+	ψc = LinRange(π - kr.ψc, π + kr.ψc, 101)
 
-# 	xv = @. kr.Rv * cos(π/2 - φv)
-# 	zv = @. kr.Rv * sin(π/2 - φv)
+	xv = @. kr.Rv * cos(π/2 - φv)
+	zv = @. kr.Rc * cos(π - kr.ψc) - kr.Rv * cos(π - kr.φv)	+ kr.Rv * sin(π/2 - φv)
+	xc = @. kr.Rc * cos(π/2 - ψc)
+	zc = @. kr.Rc * sin(π/2 - ψc)
 
+	label := ["Vesicle" "Cell"]
+	aspect_ratio := 1
 
-# 	[xv, xc], [zv, zc]
-# end
-
-# @recipe function plot(fs::FusionSlice{F}) where F <: FCFusion
-	
-# end
-
-# @recipe function plot(fs::FusionSlice{K}) where K <: KRFusion
-
-# end
-
-# @userplot MultipleSlices
-
-# @recipe function plot(ms::MultipleSlices)
-
-# end
-
-# temporal_palette(n::Int) = :blue
-# temporal_palette(n::Vector{Int}) = palette(:blues, length(n))
+	[xv, xc], [zv, zc]
+end
 
 @recipe function plot(
 	raw::RawOutput;

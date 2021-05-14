@@ -24,4 +24,5 @@ plot(kr.arc) |> display
 plot(kr.int) |> display
 
 ##
-plot(fc)
+plot(fc.fus) |> display
+plot(kr.fus) |> display
