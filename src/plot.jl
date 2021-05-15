@@ -77,6 +77,9 @@ end
 
 density_thickness_ratio = 1/10
 
+# TODO: change to heatmap.
+# TODO: sphere or thickness to represent density?
+
 @userplot DensitySliceFC
 
 @recipe function plot(dsfc::DensitySliceFC)
@@ -167,8 +170,16 @@ end
 	xc(ψ) = kr.fus.Rc * (1 + c(ψ, t)*density_thickness_ratio) * cos(π/2 - ψ)
 	zc(ψ) = kr.fus.Rc * (1 + c(ψ, t)*density_thickness_ratio) * sin(π/2 - ψ)
 
-	label := "Cell"
+	density_colour = :purple
+	seriescolor := density_colour
+	fill := (0, 0.1, density_colour)
+
 	aspect_ratio := 1
+	rlims = kr.fus.Rc * (1 + 2*density_thickness_ratio) .* (-1, 1)
+	xlims := 1.5 .* rlims
+	ylims := rlims
+
+	label := "Cell"
 
 	xc, zc, π - kr.fus.ψc, π + kr.fus.ψc
 end
