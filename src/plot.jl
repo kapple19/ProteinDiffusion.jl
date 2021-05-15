@@ -65,6 +65,21 @@ end
 	[s -> arc.u(s, t′) for t′ ∈ t]
 end
 
+# TODO: Plots WRT Angle
+
+# @recipe function plot(ang::AngleFC)
+
+# 	ang, π
+# end
+
+# @recipe function plot(ang::AngleKR)
+
+# end
+
+# @recipe function plot(::DiffusionAngleSolution, u::Function, ϕmax)
+	
+# end
+
 @recipe function plot(int::Intensity)
 	membranes = [:u, :v, :c]
 	label --> ["Total" "Vesicle" "Cell"]
@@ -169,10 +184,6 @@ end
 
 	xc(ψ) = kr.fus.Rc * (1 + c(ψ, t)*density_thickness_ratio) * cos(π/2 - ψ)
 	zc(ψ) = kr.fus.Rc * (1 + c(ψ, t)*density_thickness_ratio) * sin(π/2 - ψ)
-
-	density_colour = :purple
-	seriescolor := density_colour
-	fill := (0, 0.1, density_colour)
 
 	aspect_ratio := 1
 	rlims = kr.fus.Rc * (1 + 2*density_thickness_ratio) .* (-1, 1)

@@ -1,5 +1,6 @@
 abstract type DiffusionSolution <: PD end
 abstract type DiffusionMode <: DiffusionSolution end
+abstract type DiffusionAngleSolution <: DiffusionSolution end
 
 struct RawOutput <: DiffusionSolution
 	mode::String
@@ -45,7 +46,7 @@ struct ArcLength <: DiffusionSolution
 	end
 end
 
-struct AngleFC <: DiffusionSolution
+struct AngleFC <: DiffusionAngleSolution
 	mode::String
 	u::Function
 	v::Function
@@ -63,7 +64,7 @@ struct AngleFC <: DiffusionSolution
 	end
 end
 
-struct AngleKR <: DiffusionSolution
+struct AngleKR <: DiffusionAngleSolution
 	mode::String
 	v::Function
 	c::Function
