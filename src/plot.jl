@@ -119,9 +119,9 @@ density_thickness_ratio = 1/10
 	x, z, -π, π
 end
 
-@userplot DensitySliceKR
+@userplot DensitySliceKRv
 
-@recipe function plot(dskr::DensitySliceKR)
+@recipe function plot(dskr::DensitySliceKRv)
 	if length(dskr.args) ≠ 2
 		error("Diffusion plot must have two inputs.")
 	end
@@ -135,15 +135,40 @@ end
 	end
 
 	v(φ, t) = kr.ang.v(abs(π - φ), t)
-	c(ψ, t) = kr.ang.c(abs(π - ψ), t)
 
 	junction_offset = kr.fus.Rc * cos(π - kr.fus.ψc) - kr.fus.Rv * cos(π - kr.fus.φv)
 
 	xv(φ) = kr.fus.Rv * (1 - v(φ, t)*density_thickness_ratio) * cos(π/2 - φ)
 	zv(φ) = kr.fus.Rv * (1 - v(φ, t)*density_thickness_ratio) * sin(π/2 - φ) + junction_offset
 
-	label := ["Vesicle" "Cell"]
+	label := "Vesicle"
 	aspect_ratio := 1
 
 	xv, zv, π - kr.fus.φv, π + kr.fus.φv
+end
+
+@userplot DensitySliceKRc
+
+@recipe function plot(dskr::DensitySliceKRc)
+	if length(dskr.args) ≠ 2
+		error("Diffusion plot must have two inputs.")
+	end
+
+	kr, t = dskr.args
+	if !(kr isa DiffusionKR)
+		error("First argument must be a DiffusionKR instance.")
+	end
+	if !(t isa Float64)
+		error("Second argument must be a Float64.")
+	end
+
+	c(ψ, t) = kr.ang.c(π - abs(π - ψ), t)
+
+	xc(ψ) = kr.fus.Rc * (1 + c(ψ, t)*density_thickness_ratio) * cos(π/2 - ψ)
+	zc(ψ) = kr.fus.Rc * (1 + c(ψ, t)*density_thickness_ratio) * sin(π/2 - ψ)
+
+	label := "Cell"
+	aspect_ratio := 1
+
+	xc, zc, π - kr.fus.ψc, π + kr.fus.ψc
 end
