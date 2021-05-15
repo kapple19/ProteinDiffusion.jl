@@ -38,6 +38,8 @@
 
 \newcommand\conv{{ \text{conv} }}
 
+\newcommand{\ze}{{ \zeta }}
+
 \begin{document}
 \maketitle
 \tableofcontents
@@ -49,8 +51,8 @@ Protein delivery to a cell membrane via internal vesicles consists of two altern
 \section{Reading}
 This document is a detailed description of the biological and experimental background, the mathematical model, programmed implementation, and interpretation of results. The audience is math graduates who have familiarity with the fields of cell biology. Needless to say, the reader can skip to the interpretation at the end of the document.
 
-The first part details the biological background, giving context for the motivation behind developing the diffusion model.
-The second part provides the mathematical derivation of the model, approximately to a one-to-one relationship with the biological background given.
+The first part details the biological background, effectively a literature review giving context for the motivation behind developing the diffusion model derived here.
+The second part provides the mathematical derivation of the fusion and diffusion model, approximately to a one-to-one relationship with the biological background given.
 The third part gives a summary of the implementation in the Julia programming language, including the application programming interface (API) from a selection of biological parameters.
 The fourth part gives an interpretation of the model results, providing rationale for conclusions.
 
@@ -232,7 +234,7 @@ Also modelled is the TIRFM observation zone, wherein the fluorescence decays exp
 \cite{risselada2020proteins}.
 
 \section{Notation}
-The standard Cartesian coordinate system in three dimensions are described using $\vec{x} = (x, y, z)$ with positive directions defined via the right-hand rule. The vertical coordinate $z$ is replaced in some modelling contexts with $\xi$ and $\zeta$, which are simply vertical offsets sharing horizontal coordinates $(x, y)$.
+The standard Cartesian coordinate system in three dimensions are described using $\vec{x} = (x, y, z)$ with positive directions defined via the right-hand rule. The vertical coordinate $z$ is replaced in some modelling contexts with $\xi$ and $\ze$, which are simply vertical offsets sharing horizontal coordinates $(x, y)$.
 
 The dimension of time is represented by the variable $t$.
 
@@ -915,17 +917,77 @@ and the off diagonals,
 \chapter{TIRF Microscopy Model}
 The final component of the intended  model is incorporation of parameters involved in TIRF Microscopy which limit the resolution of observations for fusion and diffusion dynamics in space and time.
 
-\section{TIRF Microscopy Zone}
-By nature of the evanescent wave, observations are limited to a depth below the viewing platform. Let this depth be denoted $d_m > 0$. The viewing angle for full and kiss-and-run fusion is thus
+The FC and KR fusion modes are compared in the same coordinate system, which will require a differing vertical coordinate for each full/truncated spherical system. $z$ represents the vertical axis for FC fusion. $\xi$ and $\ze$ represent the vertical axes in KR fusion for the truncated vesicle and cell respectively. Each hold the relationship
 \begin{align*}
-	\varphi_m &= \min\Brace{\pi, \acos\Par{1 - \frac{d_m}{\R}}} \\
-	\phi_m &= \max\Brace{\pi, \acos\Par{1 - \frac{d_m}{\Rv}}} \\
-	\psi_m &= \min\Brace{\pi, \acos\Par{1 - \frac{d_m}{\Rc}}}
+	z - \R &=  -\xi + \Rv \cos(\pi - \phi_v) \\
+	&= \ze - \Rc \cos(\pi - \psi_c)
+\end{align*}
+inspired from the need to measure the viewing depth from the top-most points in each system respectively. This is illustrated in Figure TODO.
+
+\section{TIRF Microscopy Zone}
+For a depth $d$ from the viewing platform, the respective polar angles for FC and KR fusion are
+\begin{align*}
+	\varphi_m &= \cos^{-1}\Par{1 - \frac{d_m}{\R}} \\
+	\phi_m &= -\cos^{-1}\Par{\cos\Par{\pi - \phi_v} - \frac{d_m}{\Rv}} \\
+	\psi_m &= \cos^{-1}\Par{\cos(\pi - \psi_c) - \frac{d_m}{\Rc}}
+\end{align*}
+By nature of the evanescent wave, fluorescence decays exponentially with depth. Let the $e$-decaying microscopy depth be denoted $\delta_m \geq 0$. The exponentially decaying fluorescence with depth is adapted and simplified from \cite{oheim2019calibrating} to have the form
+\begin{align*}
+	I(z) &= u(z) e^{-z/\delta} \\
+	I(\xi) &= v(z) e^{-\xi/\delta} \\
+	I(\ze) &= c(z) e^{-\ze/\delta}
+\end{align*}
+where $u(z)$ is the local concentration level at depth $z$ for the respective diffusion coordinate system. We denote the fluorescence in terms of the horizontal distance $x$ for the fused FC system and the fused vesicle and cell in KR as $U$, $V$ and $C$ respectively.
+
+As our model objective involves the intensity with respect to the horizontal distance $x$, the coordinate $x$ needs clear transformation rules to each of the polar angles and vertical coordinates for FC and KR fusion.
+\begin{align*}
+	\varphi(x) &= \Brace{
+		\varphi
+		: x = \R \sin(\varphi)
+		\land \varphi \leq \varphi_m
+		\land \varphi \in \Omega
+	} \\
+	\phi(x) &= \Brace{
+		\phi
+		: x = \Rv \sin(\phi)
+		\land \phi \leq \phi_m
+		\land \phi \in \Omega_v
+	} \\
+	\psi(x) &= \Brace{
+		\psi
+		: x = \Rc \sin(\psi)
+		\land \psi \leq \psi_m
+		\land \psi \in \Omega_c
+	}
+\end{align*}
+For reference we repeat the transformations to the vertical coordinates.
+\begin{align*}
+	z(\varphi) = \R \cos(\varphi) \\
+	\xi(\phi) = \Rv \cos(\phi) \\
+	\ze(\psi) = \Rc \cos(\psi)
+\end{align*}
+A function operating on the above defined sets thus requires definition. The objective intensity functions are thus defined as
+\begin{align*}
+	U(x, t) &= \sum_{\varphi \in \varphi(x)} u(\varphi, t) I(z(\varphi)) \\
+	V(x, t) &= \sum_{\phi \in \phi(x)} v(\psi, t) I(\xi(\phi)) \\
+	C(x, t) &= \sum_{\psi \in \psi(x)} c(\psi, t) I(\ze(\psi))
 \end{align*}
 
-
 \section{Spot Intensity}
+Even the highest resolution TIRFM observations are pixellated [REF]. A feature of interest for our modelling is thus the central spot of fusion, selected to be the pre-fusion vesicle radius $R_v$. Thus,
+\begin{align*}
+	U_s(t) &= \int_0^{R_v} U(x, t) \dd{x} \\
+	V_s(t) &= \int_0^{R_v} V(x, t) \dd{x} \\
+	C_s(t) &= \int_0^{R_v} C(x, t) \dd{x}
+\end{align*}
+
 \section{Ring Intensity}
+Another feature of interest is the intensity surrounding the central spot. This is a ring with thickness $R_v$.
+\begin{align*}
+	U_r(t) &= \int_{R_v}^{2R_v} U(x, t) \dd{x} \\
+	V_r(t) &= \int_{R_v}^{2R_v} V(x, t) \dd{x} \\
+	C_r(t) &= \int_{R_v}^{2R_v} C(x, t) \dd{x}
+\end{align*}
 
 \part{Implementation}
 \chapter{Application Programming Interface}
