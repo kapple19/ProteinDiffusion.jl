@@ -34,8 +34,12 @@
 \newcommand\Rc{{ R'_c }}
 \newcommand\Rv{{ R'_v }}
 
+\newcommand\FC{{ \text{FC} }}
+\newcommand\KR{{ \text{KR} }}
 \newcommand\SA{{ \text{SA} }}
 
+\newcommand\spot{{ \text{spot} }}
+\newcommand\ring{{ \text{ring}  }}
 \newcommand\conv{{ \text{conv} }}
 
 \newcommand{\ze}{{ \zeta }}
@@ -968,25 +972,24 @@ For reference we repeat the transformations to the vertical coordinates.
 \end{align*}
 A function operating on the above defined sets thus requires definition. The objective intensity functions are thus defined as
 \begin{align*}
-	U(x, t) &= \sum_{\varphi \in \varphi(x)} u(\varphi, t) I(z(\varphi)) \\
+	U^\FC(x, t) &= \sum_{\varphi \in \varphi(x)} u(\varphi, t) I(z(\varphi)) \\
 	V(x, t) &= \sum_{\phi \in \phi(x)} v(\psi, t) I(\xi(\phi)) \\
-	C(x, t) &= \sum_{\psi \in \psi(x)} c(\psi, t) I(\ze(\psi))
+	C(x, t) &= \sum_{\psi \in \psi(x)} c(\psi, t) I(\ze(\psi)) \\
+	U^\KR(x, t) &= V(x, t) + C(x, t)
 \end{align*}
 
 \section{Spot Intensity}
 Even the highest resolution TIRFM observations are pixellated [REF]. A feature of interest for our modelling is thus the central spot of fusion, selected to be the pre-fusion vesicle radius $R_v$. Thus,
 \begin{align*}
-	U_s(t) &= \int_0^{R_v} U(x, t) \dd{x} \\
-	V_s(t) &= \int_0^{R_v} V(x, t) \dd{x} \\
-	C_s(t) &= \int_0^{R_v} C(x, t) \dd{x}
+	U^\FC_\spot(t) &= \int_0^{R_v} U^\FC(x, t) \dd{x} \\
+	U^\KR_\spot(t) &= \int_0^{R_v} U^\KR(x, t) \dd{x}
 \end{align*}
 
 \section{Ring Intensity}
 Another feature of interest is the intensity surrounding the central spot. This is a ring with thickness $R_v$.
 \begin{align*}
-	U_r(t) &= \int_{R_v}^{2R_v} U(x, t) \dd{x} \\
-	V_r(t) &= \int_{R_v}^{2R_v} V(x, t) \dd{x} \\
-	C_r(t) &= \int_{R_v}^{2R_v} C(x, t) \dd{x}
+	U^\FC_\ring(t) &= \int_{R_v}^{2R_v} U^\FC(x, t) \dd{x} \\
+	U^\KR_\ring(t) &= \int_{R_v}^{2R_v} U^\KR(x, t) \dd{x}
 \end{align*}
 
 \part{Implementation}
