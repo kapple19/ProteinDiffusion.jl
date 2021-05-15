@@ -22,8 +22,10 @@ end
 	φv = LinRange(π - kr.φv, π + kr.φv, 101)
 	ψc = LinRange(π - kr.ψc, π + kr.ψc, 101)
 
+	junction_offset = kr.Rc * cos(π - kr.ψc) - kr.Rv * cos(π - kr.φv)
+
 	xv = @. kr.Rv * cos(π/2 - φv)
-	zv = @. kr.Rc * cos(π - kr.ψc) - kr.Rv * cos(π - kr.φv)	+ kr.Rv * sin(π/2 - φv)
+	zv = @. kr.Rv * sin(π/2 - φv) + junction_offset
 	xc = @. kr.Rc * cos(π/2 - ψc)
 	zc = @. kr.Rc * sin(π/2 - ψc)
 
@@ -73,50 +75,9 @@ end
 	[getproperty(int, m) for m ∈ membranes]
 end
 
+density_thickness_ratio = 1/10
+
 @userplot DensitySliceFC
-
-# @recipe function plot(dsfc::DensitySliceFC)
-# 	if length(dsfc.args) ≠ 2
-# 		error("Diffusion plot must have two inputs.")
-# 	end
-	
-# 	fc, t = dsfc.args
-# 	if !(fc isa DiffusionFC)
-# 		error("First argument must be DiffusionFC instance.")
-# 	end
-# 	if !(t isa Float64)
-# 		error("Second argument must be a Float64.")
-# 	end
-	
-# 	ϕv = LinRange(-fc.fus.ϕj, fc.fus.ϕj, 101)
-# 	ϕc = LinRange(fc.fus.ϕj, 2π - fc.fus.ϕj, 101)
-
-# 	xv = @. fc.fus.R * cos(π/2 - ϕv)
-# 	zv = @. fc.fus.R * sin(π/2 - ϕv)
-# 	xc = @. fc.fus.R * cos(π/2 - ϕc)
-# 	zc = @. fc.fus.R * sin(π/2 - ϕc)
-
-# 	v(ϕ, t) = fc.ang.v(abs(ϕ), t)
-# 	c(ϕ, t) = fc.ang.c(π - abs(π - ϕ), t)
-	
-# 	r = 10
-# 	xvu = @. fc.fus.R * (1 + v(ϕv, t)/r) * cos(π/2 - ϕv)
-# 	zvu = @. fc.fus.R * (1 + v(ϕv, t)/r) * sin(π/2 - ϕv)
-# 	xcu = @. fc.fus.R * (1 + c(ϕc, t)/r) * cos(π/2 - ϕc)
-# 	zcu = @. fc.fus.R * (1 + c(ϕc, t)/r) * sin(π/2 - ϕc)
-
-# 	legend := false
-# 	aspect_ratio := 1
-# 	rlims = fc.fus.R*(1 + 1/r) .* (-1, 1)
-# 	xlims := rlims
-# 	ylims := rlims
-
-# 	bk = RGB(0, 0, 0)
-# 	color_palette := [bk; bk; palette(:default)[1:2]]
-# 	fillrange := [xvu, zvu]
-	
-# 	[xv, xc, xvu, xcu], [zv, zc, zvu, zcu]
-# end
 
 @recipe function plot(dsfc::DensitySliceFC)
 	if length(dsfc.args) ≠ 2
@@ -125,30 +86,28 @@ end
 	
 	fc, t = dsfc.args
 	if !(fc isa DiffusionFC)
-		error("First argument must be DiffusionFC instance.")
+		error("First argument must be a DiffusionFC instance.")
 	end
 	if !(t isa Float64)
 		error("Second argument must be a Float64.")
 	end
 	
-	r = 10
-
 	v(ϕ, t) = fc.ang.v(abs(ϕ), t)
 	c(ϕ, t) = fc.ang.c(abs(ϕ), t)
 	u(ϕ, t) = abs(ϕ) ≤ fc.ang.ϕj ? v(ϕ, t) : c(ϕ, t)
 	
-	x(ϕ) = fc.fus.R * (1 + u(ϕ, t)/r) * cos(π/2 - ϕ)
-	z(ϕ) = fc.fus.R * (1 + u(ϕ, t)/r) * sin(π/2 - ϕ)
+	x(ϕ) = fc.fus.R * (1 + u(ϕ, t)*density_thickness_ratio) * cos(π/2 - ϕ)
+	z(ϕ) = fc.fus.R * (1 + u(ϕ, t)*density_thickness_ratio) * sin(π/2 - ϕ)
 
-	x′(ϕ) = fc.fus.R * cos(π/2 - ϕ)
-	z′(ϕ) = fc.fus.R * sin(π/2 - ϕ)
+	# x′(ϕ) = fc.fus.R * cos(π/2 - ϕ)
+	# z′(ϕ) = fc.fus.R * sin(π/2 - ϕ)
 
 	density_colour = :purple
 	seriescolor := density_colour
 	fill := (0, 0.1, density_colour)
 
 	aspect_ratio := 1
-	rlims = fc.fus.R * (1 + 2/r) .* (-1, 1)
+	rlims = fc.fus.R * (1 + 2*density_thickness_ratio) .* (-1, 1)
 	xlims := 1.5 .* rlims
 	ylims := rlims
 
@@ -158,4 +117,33 @@ end
 	label := "Density"
 	
 	x, z, -π, π
+end
+
+@userplot DensitySliceKR
+
+@recipe function plot(dskr::DensitySliceKR)
+	if length(dskr.args) ≠ 2
+		error("Diffusion plot must have two inputs.")
+	end
+
+	kr, t = dskr.args
+	if !(kr isa DiffusionKR)
+		error("First argument must be a DiffusionKR instance.")
+	end
+	if !(t isa Float64)
+		error("Second argument must be a Float64.")
+	end
+
+	v(φ, t) = kr.ang.v(abs(π - φ), t)
+	c(ψ, t) = kr.ang.c(abs(π - ψ), t)
+
+	junction_offset = kr.fus.Rc * cos(π - kr.fus.ψc) - kr.fus.Rv * cos(π - kr.fus.φv)
+
+	xv(φ) = kr.fus.Rv * (1 - v(φ, t)*density_thickness_ratio) * cos(π/2 - φ)
+	zv(φ) = kr.fus.Rv * (1 - v(φ, t)*density_thickness_ratio) * sin(π/2 - φ) + junction_offset
+
+	label := ["Vesicle" "Cell"]
+	aspect_ratio := 1
+
+	xv, zv, π - kr.fus.φv, π + kr.fus.φv
 end
