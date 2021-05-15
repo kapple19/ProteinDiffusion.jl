@@ -31,3 +31,9 @@ plot(kr.fus) |> display
 plot(kr.fus)
 densityslicekrv!(kr, 2.0)
 densityslicekrc!(kr, 2.0)
+
+##
+plot(fc.ewm.spot, xlims = (0, fc.ewm.tmax))
+
+##
+fc.ewm.spot(0.0)

@@ -133,14 +133,79 @@ struct Intensity <: DiffusionSolution
 	end
 end
 
+# TODO: Replace quadgk on interpolated fcns with integrate on the raw data
+
+struct Microscopy <: DiffusionSolution
+	U::Function
+	ring::Function
+	spot::Function
+	xmax::Float64
+	tmax::Float64
+
+	function Microscopy(U::Function, Rv::Float64, xmax::Float64, tmax::Float64)
+		Uring(t) = quadgk(x -> U(x, t), 0.0, Rv)[1]
+		Uspot(t) = quadgk(x -> U(x, t), Rv, 2Rv)[1]
+
+		return new(U, Uring, Uspot, xmax, tmax)
+	end
+end
+
+function Microscopy(δ::Float64, fus::FusionFC, ang::AngleFC)
+	function ϕ(x)
+		ϕ′ = asin(x / fus.R)
+		return sort([ϕ′ π-ϕ′], dims = 2)
+	end
+
+	z(ϕ) = fus.R * cos(ϕ)
+
+	Usummagrand(x, t) = ang.u.(ϕ(x), t) .* exp.(-z.(ϕ(x)) / δ)
+	U(x, t) = sum(Usummagrand(x, t), dims = 2)[1]
+
+	return Microscopy(U, fus.ves.R, fus.R, ang.tmax)
+end
+
+function Microscopy(δ::Float64, fus::FusionKR, ang::AngleKR)
+	function φ(x)
+		φ′ = asin(x / fus.Rv)
+		φset = Float64[]
+		0.0 ≤ φ′ ≤ fus.φv && push!(φset, φ′)
+		0.0 ≤ π - φ′ ≤ fus.φv && push!(φset, π - φ′)
+		return sort(φset', dims = 2)
+	end
+
+	function ψ(x)
+		ψ′ = asin(x / fus.Rc)
+		ψset = Float64[]
+		π - fus.ψc ≤ ψ′ ≤ π && push!(ψset, ψ′)
+		π - fus.ψc ≤ π - ψ′ ≤ π && push!(ψset, ψ′)
+		return sort(ψset', dims = 2)
+	end
+
+	ξ(φ) = fus.Rv * cos(φ)
+	ζ(ψ) = fus.Rc * cos(ψ)
+
+	Vsummagrand(x, t) = ang.v.(φ(x), t) .* exp.(-ξ.(φ(x)) / δ)
+	Csummagrand(x, t) = ang.c.(ψ(x), t) .* exp.(-ζ.(ψ(x)) / δ)
+
+	V(x, t) = sum(Vsummagrand(x, t), dims = 2)[1]
+	C(x, t) = sum(Csummagrand(x, t), dims = 2)[1]
+	U(x, t) = V(x, t) + C(x, t)
+
+	return Microscopy(U, fus.ves.R, fus.Rc, ang.tmax)
+end
+
 struct DiffusionFC <: DiffusionMode
 	fus::FusionFC
 	raw::RawOutput
 	arc::ArcLength
 	ang::AngleFC
 	int::Intensity
+	ewm::Microscopy
 
-	function DiffusionFC(fus::FusionFC)
+	function DiffusionFC(
+		fus::FusionFC,
+		δ::Float64 = Inf64
+	)
 		sj = fus.R * fus.ϕj
 		sP = π * fus.R
 
@@ -156,8 +221,9 @@ struct DiffusionFC <: DiffusionMode
 		arc = ArcLength(raw)
 		ang = AngleFC(fus, arc)
 		int = Intensity(raw, arc, R, ω)
+		ewm = Microscopy(δ, fus, ang)
 
-		return new(fus, raw, arc, ang, int)
+		return new(fus, raw, arc, ang, int, ewm)
 	end
 end
 
@@ -169,8 +235,12 @@ struct DiffusionKR <: DiffusionMode
 	arc::ArcLength
 	ang::AngleKR
 	int::Intensity
+	ewm::Microscopy
 
-	function DiffusionKR(fus::FusionKR)
+	function DiffusionKR(
+		fus::FusionKR,
+		δ::Float64 = Inf
+	)
 		sj = fus.Rv * fus.φv
 		sP = sj + fus.Rc * fus.ψc
 		
@@ -191,8 +261,9 @@ struct DiffusionKR <: DiffusionMode
 		arc = ArcLength(raw)
 		ang = AngleKR(fus, arc)
 		int = Intensity(raw, arc, R, ω)
+		ewm = Microscopy(δ, fus, ang)
 
-		return new(fus, raw, arc, ang, int)
+		return new(fus, raw, arc, ang, int, ewm)
 	end
 end
 
