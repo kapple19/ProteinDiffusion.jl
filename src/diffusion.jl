@@ -133,66 +133,239 @@ struct Intensity <: DiffusionSolution
 	end
 end
 
-# TODO: Replace quadgk on interpolated fcns with integrate on the raw data
+# # TODO: Replace quadgk on interpolated fcns with integrate on the raw data
 
 struct Microscopy <: DiffusionSolution
-	U::Function
-	ring::Function
 	spot::Function
+	ring::Function
 	xmax::Float64
 	tmax::Float64
 
-	function Microscopy(U::Function, Rv::Float64, xmax::Float64, tmax::Float64)
-		Uring(t) = quadgk(x -> U(x, t), 0.0, Rv)[1]
-		Uspot(t) = quadgk(x -> U(x, t), Rv, 2Rv)[1]
+	function Microscopy(
+		raw::RawOutput,
+		x::AbstractVector,
+		I::AbstractVector,
+		Rv::Float64)
 
-		return new(U, Uring, Uspot, xmax, tmax)
+		qspot = eachindex(x)[x .≤ Rv]
+		qring = eachindex(x)[Rv .≤ x .≤ 2Rv]
+
+		function region(qregion)
+			itp = LinearInterpolation(
+				raw.t |> parent,
+				[
+					integrate(x[qregion], I[n][qregion])
+					for n ∈ 1:length(raw.t)
+				]
+			)
+			
+			fcn(t) = itp(t)
+			return fcn
+		end
+
+		return new(region(qspot), region(qring), maximum(x), maximum(raw.t))
 	end
 end
 
-function Microscopy(δ::Float64, fus::FusionFC, ang::AngleFC)
-	function ϕ(x)
-		ϕ′ = asin(x / fus.R)
-		return sort([ϕ′ π-ϕ′], dims = 2)
+function fold(vec)
+	folded_vector = Float64[]
+	for p ∈ eachindex(vec)
+		if p < lastindex(vec) - p
+			push!(folded_vector, vec[p] + vec[end - p])
+		elseif p == lastindex(vec) - p
+			push!(folded_vector, vec[p])
+		else
+			break
+		end
 	end
-
-	z(ϕ) = fus.R * cos(ϕ)
-
-	Usummagrand(x, t) = ang.u.(ϕ(x), t) .* exp.(-z.(ϕ(x)) / δ)
-	U(x, t) = sum(Usummagrand(x, t), dims = 2)[1]
-
-	return Microscopy(U, fus.ves.R, fus.R, ang.tmax)
+	return folded_vector
 end
 
-function Microscopy(δ::Float64, fus::FusionKR, ang::AngleKR)
-	function φ(x)
-		φ′ = asin(x / fus.Rv)
-		φset = Float64[]
-		0.0 ≤ φ′ ≤ fus.φv && push!(φset, φ′)
-		0.0 ≤ π - φ′ ≤ fus.φv && push!(φset, π - φ′)
-		return sort(φset', dims = 2)
+function Microscopy(fus::FusionFC, raw::RawOutput, δ::Float64)
+	s2ϕ(s) = @. s / fus.R
+	ϕ2s(ϕ) = @. ϕ * fus.R
+	ϕ2x(ϕ) = @. sin(ϕ) * fus.R
+	x2ϕ(x) = @. asin(x / fus.R)
+	s2x(s) = s |> s2ϕ |> ϕ2x
+	x2s(x) = x |> x2ϕ |> ϕ2s
+	uniquesort(vec) = vec |> unique |> sort
+
+	smid = fus.R * π/2
+	x = [raw.s |> parent; smid] |> uniquesort |> s2x
+	stop = x |> x2s |> s′ -> [s′; ϕ2s(π) .- s′] |> uniquesort
+	sbot = ϕ2s(π) .- stop
+
+	function Uitp(s_, U′)
+		itp = LinearInterpolation(raw.s |> parent, U′ |> parent)
+		[itp(s′) for s′ ∈ s_]
 	end
 
-	function ψ(x)
-		ψ′ = asin(x / fus.Rc)
-		ψset = Float64[]
-		π - fus.ψc ≤ ψ′ ≤ π && push!(ψset, ψ′)
-		π - fus.ψc ≤ π - ψ′ ≤ π && push!(ψset, ψ′)
-		return sort(ψset', dims = 2)
-	end
+	Utop = [Uitp(stop, U′) for U′ ∈ parent(raw.U)]
+	Ubot = [Uitp(sbot, U′) for U′ ∈ parent(raw.U)]
+	I = Utop + Ubot
 
-	ξ(φ) = fus.Rv * cos(φ)
-	ζ(ψ) = fus.Rc * cos(ψ)
+	# s = Float64[]
+	# bFoundMid = false
+	# for s′ = x2s(x)
+	# 	if s′ == smid
+	# 		bFoundMid = true
+	# 		push!(s, s′)
+	# 	else
+	# 		push!(s, s′)
+	# 		push!(s, ϕ2s(π) .- s′)
+	# 	end
+	# end
+	# unique!(s)
+	# sort!(s)
+	# if !bFoundMid
+	# 	error("")
+	# end
 
-	Vsummagrand(x, t) = ang.v.(φ(x), t) .* exp.(-ξ.(φ(x)) / δ)
-	Csummagrand(x, t) = ang.c.(ψ(x), t) .* exp.(-ζ.(ψ(x)) / δ)
+	# function Uitp(U′)
+	# 	itp = LinearInterpolation(raw.s |> parent, U′)
+	# 	[itp(s′) for s′ ∈ s]
+	# end
+	# U = [Uitp(U′ |> parent) for U′ ∈ raw.U]
+	# I = [fold(U′) for U′ ∈ U]
 
-	V(x, t) = sum(Vsummagrand(x, t), dims = 2)[1]
-	C(x, t) = sum(Csummagrand(x, t), dims = 2)[1]
-	U(x, t) = V(x, t) + C(x, t)
-
-	return Microscopy(U, fus.ves.R, fus.Rc, ang.tmax)
+	return Microscopy(raw, x, I, fus.ves.R)
 end
+
+# function Microscopy(δ::Float64, fus::FusionFC, raw::RawOutput)
+	
+# 	function ϕ2x(x)
+# 		ϕ′ = asin(x / fus.R)
+# 		return sort([ϕ′, π-ϕ′])
+# 	end
+
+# 	ϕ2s(ϕ) = fus.R * ϕ
+# 	# s2ϕ(s) = s / fus.R
+# 	# ϕ2z(ϕ) = fus.R * cos(ϕ)
+
+# 	U = OffsetVector(
+# 		[
+# 			OffsetVector(
+# 				[
+# 					raw.U[n][p] * exp(-s2z(s[p])/δ)
+# 					for p ∈ eachindex(raw.t)
+# 				], Origin(0)
+# 			) for n ∈ eachindex(raw.t)
+# 		], Origin(0)
+# 	)
+
+# 	sπ = ϕ2s(π)
+# 	Uitp = LinearInterpolation(
+# 		raw.s |> parent,
+# 		U |> parent
+# 	)
+# 	Uπ = Uitp(sπ)
+
+# 	bInterp = sπ ∈ raw.s
+
+# 	ptop = raw.p[raw.s .≤ sπ]
+# 	pbot = raw.p[raw.s .> sπ]
+
+# 	stop = raw.s[ptop]
+# 	sbot = raw.s[pbot]
+
+# 	bInterp && push!(stop, sπ)
+# 	bInterp && pushfirst!(sbot, sπ)
+
+# 	separateU(p) = OffsetVector(
+# 		[
+# 			OffsetVector(
+# 				[
+# 					U[n][p]
+# 					for p ∈ ptop
+# 				]
+# 			)
+# 			for n ∈ eachindex(raw.t)
+# 		],
+# 		Origin(0)
+# 	)
+
+# 	Utop = separateU(ptop)
+# 	Ubot = separateU(pbot)
+
+# 	for n ∈ eachindex(raw.t)
+# 		bInterp && push!(Utop[n], Uπ)
+# 		bInterp && pushfirst!(Ubot[n], Uπ)
+# 	end
+
+# 	Utop_itp = LinearInterpolation(raw.t |> parent, Utop |> parent)
+# 	Ubot_itp = LinearInterpolation(raw.t |> parent, Ubot |> parent)
+
+# 	x2s(x) = x |> x2ϕ |> ϕ2s
+
+# 	# function U_FC(x, t)
+# 	# 	s_top = x2s(x)
+# 	# 	s_bot = raw.s[end] - s_top
+# 	# 	UFC = Utop_itp(s_top)
+# 	# end
+
+# 	U_FC(x, t) = u_itp(x, t) * exp(-x2z(x) / δ)
+
+# 	return Microscopy(U_FC, )
+# end
+
+# struct Microscopy <: DiffusionSolution
+# 	U::Function
+# 	ring::Function
+# 	spot::Function
+# 	xmax::Float64
+# 	tmax::Float64
+
+# 	function Microscopy(U::Function, Rv::Float64, xmax::Float64, tmax::Float64)
+# 		Uring(t) = quadgk(x -> U(x, t), 0.0, Rv)[1]
+# 		Uspot(t) = quadgk(x -> U(x, t), Rv, 2Rv)[1]
+
+# 		return new(U, Uring, Uspot, xmax, tmax)
+# 	end
+# end
+
+# function Microscopy(δ::Float64, fus::FusionFC, ang::AngleFC)
+# 	function ϕ(x)
+# 		ϕ′ = asin(x / fus.R)
+# 		return sort([ϕ′ π-ϕ′], dims = 2)
+# 	end
+
+# 	z(ϕ) = fus.R * cos(ϕ)
+
+# 	Usummagrand(x, t) = ang.u.(ϕ(x), t) .* exp.(-z.(ϕ(x)) / δ)
+# 	U(x, t) = sum(Usummagrand(x, t), dims = 2)[1]
+
+# 	return Microscopy(U, fus.ves.R, fus.R, ang.tmax)
+# end
+
+# function Microscopy(δ::Float64, fus::FusionKR, ang::AngleKR)
+# 	function φ(x)
+# 		φ′ = asin(x / fus.Rv)
+# 		φset = Float64[]
+# 		0.0 ≤ φ′ ≤ fus.φv && push!(φset, φ′)
+# 		0.0 ≤ π - φ′ ≤ fus.φv && push!(φset, π - φ′)
+# 		return sort(φset', dims = 2)
+# 	end
+
+# 	function ψ(x)
+# 		ψ′ = asin(x / fus.Rc)
+# 		ψset = Float64[]
+# 		π - fus.ψc ≤ ψ′ ≤ π && push!(ψset, ψ′)
+# 		π - fus.ψc ≤ π - ψ′ ≤ π && push!(ψset, ψ′)
+# 		return sort(ψset', dims = 2)
+# 	end
+
+# 	ξ(φ) = fus.Rv * cos(φ)
+# 	ζ(ψ) = fus.Rc * cos(ψ)
+
+# 	Vsummagrand(x, t) = ang.v.(φ(x), t) .* exp.(-ξ.(φ(x)) / δ)
+# 	Csummagrand(x, t) = ang.c.(ψ(x), t) .* exp.(-ζ.(ψ(x)) / δ)
+
+# 	V(x, t) = sum(Vsummagrand(x, t), dims = 2)[1]
+# 	C(x, t) = sum(Csummagrand(x, t), dims = 2)[1]
+# 	U(x, t) = V(x, t) + C(x, t)
+
+# 	return Microscopy(U, fus.ves.R, fus.Rc, ang.tmax)
+# end
 
 struct DiffusionFC <: DiffusionMode
 	fus::FusionFC
@@ -221,7 +394,7 @@ struct DiffusionFC <: DiffusionMode
 		arc = ArcLength(raw)
 		ang = AngleFC(fus, arc)
 		int = Intensity(raw, arc, R, ω)
-		ewm = Microscopy(δ, fus, ang)
+		ewm = Microscopy(fus, raw, δ)
 
 		return new(fus, raw, arc, ang, int, ewm)
 	end

@@ -8,7 +8,7 @@ c = Membrane(2.0, 0.2)
 Rj = 0.4
 
 fc = DiffusionFC(v, c)
-kr = DiffusionKR(v, c, Rj)
+# kr = DiffusionKR(v, c, Rj)
 
 ##
 # plot(fc.ves) |> display
@@ -36,4 +36,5 @@ densityslicekrc!(kr, 2.0)
 plot(fc.ewm.spot, xlims = (0, fc.ewm.tmax))
 
 ##
-fc.ewm.spot(0.0)
+plot(fc.ewm.spot)
+plot(fc.ewm.ring)

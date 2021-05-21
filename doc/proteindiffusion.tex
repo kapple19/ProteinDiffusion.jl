@@ -972,9 +972,9 @@ For reference we repeat the transformations to the vertical coordinates.
 \end{align*}
 A function operating on the above defined sets thus requires definition. The objective intensity functions are thus defined as
 \begin{align*}
-	U^\FC(x, t) &= \sum_{\varphi \in \varphi(x)} u(\varphi, t) I(z(\varphi)) \\
-	V(x, t) &= \sum_{\phi \in \phi(x)} v(\psi, t) I(\xi(\phi)) \\
-	C(x, t) &= \sum_{\psi \in \psi(x)} c(\psi, t) I(\ze(\psi)) \\
+	U^\FC(x, t) &= \sum_{\varphi \in \varphi(x)} u(\varphi, t) \exp\Par{\frac{-z(\varphi(x))}{\delta}} \\
+	V(x, t) &= \sum_{\phi \in \phi(x)} v(\psi, t) \exp\Par{\frac{-\xi(\phi(x))}{\delta}} \\
+	C(x, t) &= \sum_{\psi \in \psi(x)} c(\psi, t) \exp\Par{\frac{-\ze(\psi(x))}{\delta}} \\
 	U^\KR(x, t) &= V(x, t) + C(x, t)
 \end{align*}
 
