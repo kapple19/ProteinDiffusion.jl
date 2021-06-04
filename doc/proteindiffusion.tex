@@ -34,9 +34,11 @@
 \newcommand\Rc{{ R'_c }}
 \newcommand\Rv{{ R'_v }}
 
+\newcommand\SA{{ \text{SA} }}
 \newcommand\FC{{ \text{FC} }}
 \newcommand\KR{{ \text{KR} }}
-\newcommand\SA{{ \text{SA} }}
+\newcommand\KRv{{ \text{KRv} }}
+\newcommand\KRc{{ \text{KRc} }}
 
 \newcommand\spot{{ \text{spot} }}
 \newcommand\ring{{ \text{ring}  }}
@@ -322,10 +324,10 @@ The fusion events result in geometric deformities that demand the calculation of
 Though it is highly unrealistic for a vesicle to approach the size of the cell, such a scenario provides a convenient way to test the validity of the derived models.
 
 \section{Total Concentration}
-The objective output variable of interest is the intensity, otherwise termed the integration of the normalised concentration level over a specified spatial domain $\Omega$.
+The objective output variable of interest is the intensity, otherwise termed the integration of the normalised concentration level over a specified spatial domain $\Theta$.
 
 \begin{align*}
-	\Angle{\bullet}_\Omega &= r^2 \int_\Omega \bullet \sin(\varphi)\ \dd\varphi
+	\Angle{\bullet}_\Theta &= r^2 \int_\Theta \bullet \sin(\varphi)\ \dd\varphi
 \end{align*}
 
 This definition is later re-derived into a form used due to the model derivation process, given in TODO and TODO.
@@ -343,7 +345,7 @@ Pre-fusion, the vesicle and cell surface areas are given as
 
 \chapter{Full Fusion}
 \section{Fusion Parameters}
-The process of full fusion results in the vesicle becoming fully incorporated into the geometrical structure of a cell. This results in a post-fusion sphere, which is modelled with polar angle $\varphi \in \overline\Omega$ with $\Omega = (0, \pi)$. The vesicle becomes fused as a polar cap on the fused system. The system maintains its axisymmetry.
+The process of full fusion results in the vesicle becoming fully incorporated into the geometrical structure of a cell. This results in a post-fusion sphere, which is modelled with polar angle $\varphi \in \overline\Theta$ with $\Theta = (0, \pi)$. The vesicle becomes fused as a polar cap on the fused system. The system maintains its axisymmetry.
 
 \subsection{Post-Fusion Radii}
 Under the assumption of surface area preservation,
@@ -362,7 +364,7 @@ The fused system results in the vesicle and cell membrane meeting at a location 
 	\Rightarrow \varphi_j &= \cos^{-1}\Par{1 - \frac{2R_v^2}{\R^2}} \nonumber \\
 	&= \cos^{-1}\Par{\frac{R_c^2 - R_v^2}{\R^2}} \label{eqn:FC:junction_angle}
 \end{align}
-for $\varphi_j \in \Omega$.
+for $\varphi_j \in \Theta$.
 
 \subsection{Diffusivity}
 The full fusion model assumes conservation of diffusivity, resulting in a junction consisting of a potential diffusivity transition. This is modelled as Heaviside.
@@ -374,12 +376,12 @@ The full fusion model assumes conservation of diffusivity, resulting in a juncti
 The diffusion equation applied to the full fusion model with parameters defined above provides the initial-and-boundary value problem as follows.
 \begin{align*}
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}}
-	& \varphi &\in \Omega
+	& \varphi &\in \Theta
 	& t &> 0 \\
 	u(\varphi, t) &= H(\varphi_j - \varphi)
-	& \varphi &\in \overline\Omega
+	& \varphi &\in \overline\Theta
 	& t &= 0 \\
-	\pdv{u(\varphi, t)}{\varphi} &= 0 & \varphi &\in \partial\Omega & t &\geq 0
+	\pdv{u(\varphi, t)}{\varphi} &= 0 & \varphi &\in \partial\Theta & t &\geq 0
 \end{align*}
 
 \section{Analytical Solution for Constant Diffusivity}
@@ -453,10 +455,10 @@ The numerical solution in prospect requires reformulation of the differential eq
 \begin{align*}
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} \\
 	\R^2 \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) &= \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \\
-	\R^2 \int_\Omega \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) \dd\varphi &= \int_\Omega \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \dd\varphi \\
-	\Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= \Brack{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} w(\varphi)}_\Omega
-	- \int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
-	\Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= -\int_\Omega D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
+	\R^2 \int_\Theta \sin(\varphi) \pdv{u(\varphi, t)}{t} w(\varphi) \dd\varphi &= \int_\Theta \pdv\varphi\Par{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi}} w(\varphi) \dd\varphi \\
+	\Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= \Brack{D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} w(\varphi)}_\Theta
+	- \int_\Theta D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
+	\Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= -\int_\Theta D(\varphi) \sin(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi} \dd\varphi \\
 	\Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} &= - \frac{1}{2\pi \R^2} \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
 \end{align*}
 yielding the weak form
@@ -465,7 +467,7 @@ yielding the weak form
 \end{align*}
 with total concentration
 \begin{align*}
-	\Angle{\bullet} &= \R^2 \int_\Omega \sin(\varphi) \bullet \dd\varphi
+	\Angle{\bullet} &= \R^2 \int_\Theta \sin(\varphi) \bullet \dd\varphi
 \end{align*}
 
 \subsection{Parameterisation by Arc Length}
@@ -480,7 +482,7 @@ providing the new weak form
 with
 \begin{align*}
 	\omega(s) &= \frac{s}{\R} \\
-	\Angle\bullet &= 2\pi \R \int_\Gamma \sin\Par{\omega(s)} \bullet \dd{s}
+	\Angle\bullet &= 2\pi \R \int_\Omega \sin\Par{\omega(s)} \bullet \dd{s}
 \end{align*}
 
 \section{Steady State Solution}
@@ -637,7 +639,7 @@ so inverse transformations are
 \begin{align*}
 	\Gamma_v &= (0, s_j) \\
 	\Gamma_c &= (s_j, s_P) \\
-	\Gamma &= \conv\Par{\Gamma_v \cup \Gamma_c} \\
+	\Omega &= \conv\Par{\Gamma_v \cup \Gamma_c} \\
 	\phi(s) &= \frac{s}{\Rv} \\
 	\psi(s) &= \frac{s - s_j}{\Rc} + \pi - \psi_c \\\
 	\omega(s) &= \begin{cases}
@@ -679,7 +681,7 @@ so our weak form becomes
 	0 &= \Rv \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{t} w(s) \dd{s}
 	+ \Rc \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{t} w(s) \dd{s} \\
 	&\quad+ D_v \int_{\Gamma_v} \sin\Par{\phi(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s} + D_c \int_{\Gamma_c} \sin\Par{\psi(s)} \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s} \\
-	0 &= \int_\Gamma \sin\Par{\omega(s)} \R(s) \pdv{u(s, t)}{t} w(s) + \int_\Gamma \sin\Par{\omega(s)} D(s) \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s}
+	0 &= \int_\Omega \sin\Par{\omega(s)} \R(s) \pdv{u(s, t)}{t} w(s) + \int_\Omega \sin\Par{\omega(s)} D(s) \pdv{u(s, t)}{s} \dv{w(s)}{s} \dd{s}
 \end{align*}
 yielding our weak form in arc-length
 \begin{align*}
@@ -730,9 +732,9 @@ The finite element method expressed generically for the fusion modes of full and
 \end{align*}
 with
 \begin{align*}
-	\Angle{\bullet} &= \int_\Gamma R(s) \sin\Par{\omega(s)} \bullet \dd{s}
+	\Angle{\bullet} &= \int_\Omega R(s) \sin\Par{\omega(s)} \bullet \dd{s}
 \end{align*}
-for $\Gamma$, $s$, $D(s)$, $R(s)$, and $\omega(s)$ defined by the fusion mode model.
+for $\Omega$, $s$, $D(s)$, $R(s)$, and $\omega(s)$ defined by the fusion mode model.
 
 \section{Conservation of Mathematical Principles}
 By the involvedness of the derivation and for the testing of implementation, the developed model is investigated for validity through application of the first principles it is derived from.
@@ -891,7 +893,7 @@ For clarity, define
 For the main diagonal,
 \begin{align*}
 	\Brack{M}_{pp} &= \Angle{\Lambda_p^2(s)} \\
-	&= \int_\Gamma \R(s) \Lambda_p^2(s) \dd{s} \\
+	&= \int_\Omega \R(s) \Lambda_p^2(s) \dd{s} \\
 	&= I_{\bbP_+}(p) \int_{s_{p-1}}^{s_p} \R(s) \frac{s - s_{p-1}}{h_p} \dd{s} + I_{\bbP_-}(p) \int_{s_p}^{s_{p+1}} \R(s) \frac{s_{p+1} - s}{h_{p+1}} \dd{s}
 \end{align*}
 where the first integral is
@@ -929,7 +931,7 @@ so
 For the off-diagonals,
 \begin{align*}
 	\Brack{M}_{p-1, p} &= \Angle{\Lambda_{p-1}(s) \Lambda_p(s)} \\
-	&= \int_\Gamma \R(s) \Lambda_{p-1}(s) \Lambda_p(s) \dd{s} \\
+	&= \int_\Omega \R(s) \Lambda_{p-1}(s) \Lambda_p(s) \dd{s} \\
 	&= \frac{1}{h_p^2} \int_{s_{p-1}}^{s_p} \R(s) \Par{s_p - s} \Par{s - s_{p-1}} \dd{s} \\
 	&\approx \frac{1}{6h_p} \Brack{
 		4 \R(s_{p-\nf12}) \Par{s_p - \frac{s_{p-1} + s_p}{2}} \Par{\frac{s_{p-1} + s_p}{2} - s_{p-1}}
@@ -944,14 +946,14 @@ yielding
 For the main diagonal,
 \begin{align*}
 	\Brack{S}_{pp} &= \Angle{\frac{D(s)}{R(s)} \Par{\pdv{\Lambda_p(s)}{s}}^2} \\
-	&= \int_\Gamma \D(s) \Par{\pdv{\Lambda_p(s)}{s}}^2 \dd{s} \\
+	&= \int_\Omega \D(s) \Par{\pdv{\Lambda_p(s)}{s}}^2 \dd{s} \\
 	&= I_{\bbP_+}(p) \int_{s_{p-1}}^{s_p} \D(s) \frac{1}{h_p^2} \dd{s} + I_{\bbP_-}(p) \int_{s_p}^{s_{p+1}} \D(s) \frac{1}{h_{p+1}^2} \dd{s} \\
 	&= \frac{I_{\bbP_+}(p)}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s} + \frac{I_{\bbP_-}(p)}{h_{p+1}^2} \int_{s_p}^{s_{p+1}} \D(s) \dd{s}
 \end{align*}
 and the off diagonals,
 \begin{align*}
 	\Brack{S}_{p-1, p} &= \Angle{\frac{D(s)}{R(s)} \pdv{\Lambda_{p-1}(s)}{s} \pdv{\Lambda_p(s)}{s}} \\
-	&= \int_\Gamma \D(s) \pdv{\Lambda_{p-1}(s)}{s} \pdv{\Lambda_p(s)}{s} \dd{s} \\
+	&= \int_\Omega \D(s) \pdv{\Lambda_{p-1}(s)}{s} \pdv{\Lambda_p(s)}{s} \dd{s} \\
 	&= \int_{s_{p-1}}^{s_p} \D(s) \frac{-1}{h_p^2} \dd{s} \\
 	&= \frac{-1}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s}
 \end{align*}
@@ -959,102 +961,74 @@ and the off diagonals,
 \chapter{Evanescent Wave Microscopy Model}
 The final component of the intended  model is incorporation of parameters involved in TIRF Microscopy which limit the resolution of observations for fusion and diffusion dynamics in space and time.
 
-The FC and KR fusion modes are compared in the same coordinate system, which will require a differing vertical coordinate for each full/truncated spherical system. $z$ represents the vertical axis for FC fusion. $\xi$ and $\ze$ represent the vertical axes in KR fusion for the truncated vesicle and cell respectively. Each hold the relationship
+The FC and KR fusion modes are compared in the same coordinate system, which will require a differing vertical coordinate for each full/truncated spherical system. Let $\zeta_\FC$, $\zeta_\KRv$, and $\zeta_\KRc$ represent vertical axes for the FC, KR vesicle, and KR cell respectively, such that their origins are located at the highest point of the system, and point positive with viewing depth. Such is illustrated in Figure TODO.
 \begin{align*}
-	z - \R &=  -\xi + \Rv \cos(\pi - \phi_v) \\
-	&= \ze - \Rc \cos(\pi - \psi_c)
+	\zeta_\FC &= \R - z \\
+	\zeta_\KRv &= z - \Rv \cos(\pi - \phi_v) \\
+	\zeta_\KRc &= \Rc \cos(\pi - \psi_c) - z
 \end{align*}
-inspired from the need to measure the viewing depth from the top-most points in each system respectively. This is illustrated in Figure TODO.
+The range for non-zero values are
+\begin{align*}
+	\zeta_\FC &\in \Gamma_\FC = \Par{0, 2\R} \\
+	\zeta_\KRv &\in \Gamma_\KRv = \Par{0, \Rv \Par{1 + \cos(\pi - \phi_v)}} \\
+	\zeta_\KRc &\in \Gamma_\KRc = \Par{0, \Rc \Par{1 + \cos(\pi - \psi_c)}}
+\end{align*}
+Additionally, we define the upper and lower regions of each domain.
+\begin{align*}
+	\Gamma_\FC^- &= \Par{0, \R}
+	& \Gamma_\FC^+ &= \Par{\R, 2\R} \\
+	\Gamma_\KRv^- &= \Par{0, \Rv \cos(\pi - \phi_v)}
+	& \Gamma_\KRv^+ &= \Par{\Rv \cos(\pi - \phi_v), \Rv \Par{1 + \cos(\pi - \phi_v)}} \\
+	\Gamma_\KRc^- &= \Par{0, \Rc \cos(\pi - \psi_c)}
+	& \Gamma_\KRc^+ &= \Par{\Rc \cos(\pi - \psi_c), \Rc \Par{1 + \cos(\pi - \psi_c)}}
+\end{align*}
+where of course, $\Gamma = \conv\Par{\Gamma^- \cup \Gamma^+}$ for each system.
 
-\section{TIRF Microscopy Zone}
-For a depth $d$ from the viewing platform, the respective polar angles for FC and KR fusion are
-\begin{align*}
-	\varphi_m &= \cos^{-1}\Par{1 - \frac{d_m}{\R}} \\
-	\phi_m &= -\cos^{-1}\Par{\cos\Par{\pi - \phi_v} - \frac{d_m}{\Rv}} \\
-	\psi_m &= \cos^{-1}\Par{\cos(\pi - \psi_c) - \frac{d_m}{\Rc}}
-\end{align*}
-By nature of the evanescent wave, fluorescence decays exponentially with depth. Let the $e$-decaying microscopy depth be denoted $\delta_m \geq 0$. The exponentially decaying fluorescence with depth is adapted and simplified from \cite{oheim2019calibrating} to have the form
-\begin{align*}
-	I(z) &= u(z) e^{-z/\delta} \\
-	I(\xi) &= v(z) e^{-\xi/\delta} \\
-	I(\ze) &= c(z) e^{-\ze/\delta}
-\end{align*}
-where $u(z)$ is the local concentration level at depth $z$ for the respective diffusion coordinate system. We denote the fluorescence in terms of the horizontal distance $x$ for the fused FC system and the fused vesicle and cell in KR as $U$, $V$ and $C$ respectively.
+The model expressions from hereon WLOG use $\Gamma$ to represent the region for each system, $\zeta$ for the shifted vertical coordinate for each system, $\varphi$ for the polar angle for each system, and $\R$ the radius for each system.
 
-As our model objective involves the intensity with respect to the horizontal distance $x$, the coordinate $x$ needs clear transformation rules to each of the polar angles and vertical coordinates for FC and KR fusion.
+\section{Depth Decay}
+Two models of interest are modelled. The first is a given depth beyond which, no fluorescence is detected, and a perfect detection of the fluorescence is detected above. This is expressed as
 \begin{align*}
-	\varphi(x) &= \Brace{
-		\varphi
-		: x = \R \sin(\varphi)
-		\land \varphi \leq \varphi_m
-		\land \varphi \in \Omega
-	} \\
-	\phi(x) &= \Brace{
-		\phi
-		: x = \Rv \sin(\phi)
-		\land \phi \leq \phi_m
-		\land \phi \in \Omega_v
-	} \\
-	\psi(x) &= \Brace{
-		\psi
-		: x = \Rc \sin(\psi)
-		\land \psi \leq \psi_m
-		\land \psi \in \Omega_c
-	}
+	d(\zeta; \delta) &= H(\delta - \zeta)
 \end{align*}
-For reference we repeat the transformations to the vertical coordinates.
+with $\delta$ the cut-off depth.
+
+The second is an exponentially decaying fluorescence with depth, expressed as
 \begin{align*}
-	z(\varphi) = \R \cos(\varphi) \\
-	\xi(\phi) = \Rv \cos(\phi) \\
-	\ze(\psi) = \Rc \cos(\psi)
+	d(\zeta; \delta) &= e^{-\zeta/\delta}
 \end{align*}
-A function operating on the above defined sets thus requires definition. The objective intensity functions are thus defined as
+with $\delta$ the $e$-decaying microscopy depth.
+
+For both depth-decaying models, the resultant intensity holds the form
 \begin{align*}
-	U^\FC(x, t) &= \sum_{\varphi \in \varphi(x)} u(\varphi, t) \exp\Par{\frac{-z(\varphi(x))}{\delta}} \\
-	V(x, t) &= \sum_{\phi \in \phi(x)} v(\psi, t) \exp\Par{\frac{-\xi(\phi(x))}{\delta}} \\
-	C(x, t) &= \sum_{\psi \in \psi(x)} c(\psi, t) \exp\Par{\frac{-\ze(\psi(x))}{\delta}} \\
-	U^\KR(x, t) &= V(x, t) + C(x, t)
+	I(\zeta, t; \delta) &= u(\zeta, t) d(\zeta; \delta)
 \end{align*}
 
-\subsection{Initial and Steady States}
-The expected initial and steady states are computed via the geometries, leveraging off the concentration initial and steady states.
+\section{Viewing Range}
+Associated with the viewing range $\zeta$ is the horizontal, radial displacement from the co-ordinate origin, denoted $x$ WLOG for the co-ordinate $y$ and coincides with the horizonal co-ordinate associated with $z$. The transformation from $\zeta$ to $x$ is not injective, hence the defitions of upper and lower regions for each shifted vertical co-ordinate earlier. Associated with the upper and lower regions are $x^-$ and $x^+$ such that $\zeta^-$ projects to $x^-$ and $\zeta^+$ projects to $x^+$. First, $\zeta$ is transformed back to $z$, then to $x$ via
 \begin{align*}
-	U^\FC(x, 0) &= \sum_{\varphi \in \varphi(x)} u(\varphi, 0) \exp\Par{\frac{-z(\varphi(x))}{\delta}} \\
-	&= \sum_{\varphi \in \varphi(x)} H(\varphi_j - \varphi) \exp\Par{\frac{-z(\varphi(x))}{\delta}} \\
-	&= \sum_\Brace{\varphi \in \varphi(x):\ \varphi < \varphi_j} \exp\Par{\frac{-z(\varphi(x))}{\delta}}
+	x &= \sqrt{\R^2 - z^2}
 \end{align*}
+Thus far we will have injective solution functions for $u(x^-, t)$ and $u(x^+, t)$ for each system.
+
+Let
 \begin{align*}
-	\lim_{t \to \infty} U^\FC(x, t) &= \lim_{t \to \infty} \sum_{\varphi \in \varphi(x)} u(\varphi, t) \exp\Par{\frac{-z(\varphi(x))}{\delta}} \\
-	&= \frac{1 - \cos(\varphi_j)}{2} \sum_{\varphi \in \varphi(x)} \exp\Par{\frac{-z(\varphi(x))}{\delta}}
+	d(x; \delta) &= d(\zeta; \delta)
 \end{align*}
+for the respective relationship held between $x$ and $\zeta$.
 
 \section{Spot Intensity}
-Even the highest resolution TIRFM observations are pixellated [REF]. A feature of interest for our modelling is thus the central spot of fusion, selected to be the pre-fusion vesicle radius $R_v$. Thus,
-\begin{align*}
-	U^\FC_\spot(t) &= \int_0^{R_v} U^\FC(x, t) \dd{x} \\
-	U^\KR_\spot(t) &= \int_0^{R_v} U^\KR(x, t) \dd{x}
-\end{align*}
+A feature of interest is the central spot of fusion, selected to be a circular region of radius $R_v$, the pre-fusion vesicle radius.
 
-As the initial and steady states for the diffusion dynamics are known, we can easily compute such for the spot intensity.
+The spot intensity $I^\spot$ generically represents the spot intensity for each fusion mode FC and KR as $I_\FC^\spot$ and $I_\KR^\spot$ respectively, and is a function of time, obtained over the integrated concentration as a function of viewing range. That is,
 \begin{align*}
-	U^\FC_\spot(0) &= \int_0^{R_v} U^\FC(x, 0) \dd{x} \\
-	&= 
-\end{align*}
-
-\begin{align*}
-	\lim_{t \to \infty} U^\FC_\spot(t) &= 
+	I(t; \delta) &= \int_0^{R_v} u(x^-, t) d(x^-; \delta) \dd{x^-} + \int_0^{R_v} u(x^+, t) d(x^+; \delta) \dd{x^+}
 \end{align*}
 
 \section{Ring Intensity}
-Another feature of interest is the intensity surrounding the central spot. This is a ring with thickness $R_v$.
+Similarly, $I_\FC^\ring$ and $I_\KR^\ring$ are computed as integrals over a ring around the central spot, holding the same thickness.
 \begin{align*}
-	U^\FC_\ring(t) &= \int_{R_v}^{2R_v} U^\FC(x, t) \dd{x} \\
-	U^\KR_\ring(t) &= \int_{R_v}^{2R_v} U^\KR(x, t) \dd{x}
-\end{align*}
-
-The ring intensity steady state is also easily computed.
-\begin{align*}
-	\lim_{t \to \infty} U^\FC_\spot(t) &= 
+	I(t; \delta) &= \int_{R_v}^{2R_v} u(x^-, t) d(x^-; \delta) \dd{x^-} + \int_{R_v}^{2R_v} u(x^+, t) d(x^+; \delta) \dd{x^+}
 \end{align*}
 
 \part{Implementation}
