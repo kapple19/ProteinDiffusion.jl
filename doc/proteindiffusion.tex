@@ -348,7 +348,7 @@ The process of full fusion results in the vesicle becoming fully incorporated in
 \subsection{Post-Fusion Radii}
 Under the assumption of surface area preservation,
 \begin{align*}
-	\SA_\text{full fusion} &= \SA_v + \SA_c \\
+	\SA_\text{FC} &= \SA_v + \SA_c \\
 	\Rightarrow 4\pi \R^2 &= 4\pi R_v^2 + 4\pi R_c^2 \\
 	\Rightarrow \R &= \sqrt{R_v^2 + R_c^2}
 \end{align*}
@@ -356,12 +356,12 @@ where the post-fusion spherical radius is denoted as $\R > 0$.
 
 \subsection{Junction Angle}
 The fused system results in the vesicle and cell membrane meeting at a location termed the junction, denoted by the polar angle as $\varphi_j$. The location of this junction is derived from the fact that the vesicle's preserved surface area occupies the fused sphere as a spherical cap.
-\begin{align*}
-	\SA_\text{cap} &= \SA_v \\
-	\Rightarrow 2\pi \R^2 \Par{1 - \cos(\varphi_j)} &= 4\pi R_v^2 \\
-	\Rightarrow \varphi_j &= \cos^{-1}\Par{1 - \frac{2R_v^2}{\R^2}} \\
-	&= \cos^{-1}\Par{\frac{R_c^2 - R_v^2}{\R^2}} \\
-\end{align*}
+\begin{align}
+	\SA_\text{cap} &= \SA_v \nonumber \\
+	\Rightarrow 2\pi \R^2 \Par{1 - \cos(\varphi_j)} &= 4\pi R_v^2 \nonumber \\
+	\Rightarrow \varphi_j &= \cos^{-1}\Par{1 - \frac{2R_v^2}{\R^2}} \nonumber \\
+	&= \cos^{-1}\Par{\frac{R_c^2 - R_v^2}{\R^2}} \label{eqn:FC:junction_angle}
+\end{align}
 for $\varphi_j \in \Omega$.
 
 \subsection{Diffusivity}
@@ -475,12 +475,26 @@ By foresight of the kiss-and-run fusion modelling, we parameterize the full fusi
 \end{align*}
 providing the new weak form
 \begin{align*}
-	0 &= \Angle{\pdv{u(\varphi, t)}{t} w(\varphi)} + \Angle{D(\varphi) \pdv{u(\varphi, t)}{\varphi} \dv{w(\varphi)}{\varphi}}
+	0 &= \Angle{\pdv{u(s, t)}{t} w(s)} + \Angle{D(s) \pdv{u(s, t)}{s} \dv{w(s)}{s}}
 \end{align*}
 with
 \begin{align*}
 	\omega(s) &= \frac{s}{\R} \\
 	\Angle\bullet &= 2\pi \R \int_\Gamma \sin\Par{\omega(s)} \bullet \dd{s}
+\end{align*}
+
+\section{Steady State Solution}
+The expected steady state is easily computed since the total concentration becomes evenly spread over the domain.
+\begin{align*}
+	\lim_{t \to \infty} u(s, t) &= \frac{\SA_\text{cap}}{\SA_\text{FC}} \\
+	&= \frac{\SA_v}{\SA_v + \SA_c} \\
+	&= \frac{4\pi R_v^2}{4\pi \Par{R_v^2 + R_c^2}} \\
+	&= \frac{R_v^2}{\R^2}
+\end{align*}
+In minimizing the expression further using \eqref{eqn:FC:junction_angle},
+\begin{align*}
+	\lim_{t \to \infty} u(s, t) &= \frac{R_v^2}{\R^2} \\
+	&= \frac{1 - \cos(\varphi_j)}{2}
 \end{align*}
 
 \chapter{Kiss-and-Run Fusion}
@@ -678,6 +692,30 @@ with
 		\Rc & s \in \Gamma_c
 	\end{cases} \\
 	\Angle{\bullet} &= \int \R(s) \sin\Par{\omega(s)} \bullet \dd{s}
+\end{align*}
+
+\section{Steady State Solution}
+The KR steady state solution is computed via the geometry.
+\begin{align*}
+	\lim_{t \to \infty} u(s, t) &= \frac{\SA'_v}{\SA_\text{KR}} \\
+	&= \frac{\SA'_v}{\SA'_v + \SA'_c}
+\end{align*}
+where
+\begin{align*}
+	\SA'_v &= 2\pi \Rv^2 \int_0^{\phi_v} \sin(\phi) \dd{\phi} \\
+	&= 2\pi \Rv^2 \Brack{\cos(\phi)}^0_{\phi_v} \\
+	&= 2\pi \Rv^2 \Par{1 - \cos(\phi_v)}
+\end{align*}
+and similarly
+\begin{align*}
+	\SA'_c &= 2\pi \Rc^2\Par{1 - \cos(\psi_c)}
+\end{align*}
+so
+\begin{align*}
+	\lim_{t \to \infty} u(s, t) &= \frac{\Rv^2 \Par{1 - \cos(\phi_v)}}{
+		\Rv^2 \Par{1 - \cos(\phi_v)}
+		+ \Rc^2 \Par{1 - \cos(\psi_c)}
+	}
 \end{align*}
 
 \chapter{Finite Element Method}
@@ -918,7 +956,7 @@ and the off diagonals,
 	&= \frac{-1}{h_p^2} \int_{s_{p-1}}^{s_p} \D(s) \dd{s}
 \end{align*}
 
-\chapter{TIRF Microscopy Model}
+\chapter{Evanescent Wave Microscopy Model}
 The final component of the intended  model is incorporation of parameters involved in TIRF Microscopy which limit the resolution of observations for fusion and diffusion dynamics in space and time.
 
 The FC and KR fusion modes are compared in the same coordinate system, which will require a differing vertical coordinate for each full/truncated spherical system. $z$ represents the vertical axis for FC fusion. $\xi$ and $\ze$ represent the vertical axes in KR fusion for the truncated vesicle and cell respectively. Each hold the relationship
@@ -978,6 +1016,18 @@ A function operating on the above defined sets thus requires definition. The obj
 	U^\KR(x, t) &= V(x, t) + C(x, t)
 \end{align*}
 
+\subsection{Initial and Steady States}
+The expected initial and steady states are computed via the geometries, leveraging off the concentration initial and steady states.
+\begin{align*}
+	U^\FC(x, 0) &= \sum_{\varphi \in \varphi(x)} u(\varphi, 0) \exp\Par{\frac{-z(\varphi(x))}{\delta}} \\
+	&= \sum_{\varphi \in \varphi(x)} H(\varphi_j - \varphi) \exp\Par{\frac{-z(\varphi(x))}{\delta}} \\
+	&= \sum_\Brace{\varphi \in \varphi(x):\ \varphi < \varphi_j} \exp\Par{\frac{-z(\varphi(x))}{\delta}}
+\end{align*}
+\begin{align*}
+	\lim_{t \to \infty} U^\FC(x, t) &= \lim_{t \to \infty} \sum_{\varphi \in \varphi(x)} u(\varphi, t) \exp\Par{\frac{-z(\varphi(x))}{\delta}} \\
+	&= \frac{1 - \cos(\varphi_j)}{2} \sum_{\varphi \in \varphi(x)} \exp\Par{\frac{-z(\varphi(x))}{\delta}}
+\end{align*}
+
 \section{Spot Intensity}
 Even the highest resolution TIRFM observations are pixellated [REF]. A feature of interest for our modelling is thus the central spot of fusion, selected to be the pre-fusion vesicle radius $R_v$. Thus,
 \begin{align*}
@@ -985,11 +1035,26 @@ Even the highest resolution TIRFM observations are pixellated [REF]. A feature o
 	U^\KR_\spot(t) &= \int_0^{R_v} U^\KR(x, t) \dd{x}
 \end{align*}
 
+As the initial and steady states for the diffusion dynamics are known, we can easily compute such for the spot intensity.
+\begin{align*}
+	U^\FC_\spot(0) &= \int_0^{R_v} U^\FC(x, 0) \dd{x} \\
+	&= 
+\end{align*}
+
+\begin{align*}
+	\lim_{t \to \infty} U^\FC_\spot(t) &= 
+\end{align*}
+
 \section{Ring Intensity}
 Another feature of interest is the intensity surrounding the central spot. This is a ring with thickness $R_v$.
 \begin{align*}
 	U^\FC_\ring(t) &= \int_{R_v}^{2R_v} U^\FC(x, t) \dd{x} \\
 	U^\KR_\ring(t) &= \int_{R_v}^{2R_v} U^\KR(x, t) \dd{x}
+\end{align*}
+
+The ring intensity steady state is also easily computed.
+\begin{align*}
+	\lim_{t \to \infty} U^\FC_\spot(t) &= 
 \end{align*}
 
 \part{Implementation}
