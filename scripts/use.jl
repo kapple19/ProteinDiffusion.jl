@@ -8,7 +8,7 @@ c = Membrane(2.0, 0.2)
 Rj = 0.4
 
 fc = DiffusionFC(v, c)
-# kr = DiffusionKR(v, c, Rj)
+kr = DiffusionKR(v, c, Rj)
 
 ##
 # plot(fc.ves) |> display
@@ -38,3 +38,10 @@ plot(fc.ewm.spot, xlims = (0, fc.ewm.tmax))
 ##
 plot(fc.ewm.spot)
 plot(fc.ewm.ring)
+
+##
+tmax = fc.ewm.tmax/100
+t = [0; 10.0.^LinRange(log10(1e-30), log10(tmax), 1001)]
+# scatter(t, fc.ewm.ring)
+plot(t, fc.ewm.spot)
+plot!(t, fc.ewm.ring)

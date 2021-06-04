@@ -12,7 +12,10 @@ import Interpolations:
 	Gridded,
 	LinearInterpolation,
 	Linear
-import IntervalArithmetic: (..)
+# import Intervals:
+# 	Interval,
+# 	Open
+
 import Plots:
 	palette,
 	RGB

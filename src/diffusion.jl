@@ -2,6 +2,9 @@ abstract type DiffusionSolution <: PD end
 abstract type DiffusionMode <: DiffusionSolution end
 abstract type DiffusionAngleSolution <: DiffusionSolution end
 
+"""
+Struct storing the raw output of the solution method implementation. Generic for both fusion modes.
+"""
 struct RawOutput <: DiffusionSolution
 	mode::String
 	s::OVector64
@@ -10,6 +13,9 @@ struct RawOutput <: DiffusionSolution
 	pj::Int64
 end
 
+"""
+Struct storing the bivariate function with respect to arc-length that interpolates the raw output solution. Generic for both fusion modes.
+"""
 struct ArcLength <: DiffusionSolution
 	mode::String
 	u::Function
@@ -34,8 +40,8 @@ struct ArcLength <: DiffusionSolution
 		tmax = raw.t[end]
 
 		function u(s, t)
-			s ∉ 0.0..smax && return 0.0
-			t ∉ 0.0..tmax && return NaN
+			0.0 ≤ s ≤ smax && return 0.0
+			0.0 ≤ t ≤ tmax && return NaN
 			return itp(s, t)
 		end
 
@@ -46,6 +52,9 @@ struct ArcLength <: DiffusionSolution
 	end
 end
 
+"""
+Struct storing the Full-Collapse bivariate function interpolated from the raw output and transformed from arc-length to polar angle.
+"""
 struct AngleFC <: DiffusionAngleSolution
 	mode::String
 	u::Function
@@ -64,6 +73,9 @@ struct AngleFC <: DiffusionAngleSolution
 	end
 end
 
+"""
+Struct storing the Kiss-and-Run bivariate function interpolated from the raw output and transformed from arc-length to polar angle.
+"""
 struct AngleKR <: DiffusionAngleSolution
 	mode::String
 	v::Function
@@ -83,6 +95,11 @@ struct AngleKR <: DiffusionAngleSolution
 	end
 end
 
+"""
+Struct for storing the time-varying intensities. Generic for both fusion modes.
+
+The intensity is obtained via integration of the raw solution over space for respective regions.
+"""
 struct Intensity <: DiffusionSolution
 	mode::String
 	u::Function
@@ -133,252 +150,127 @@ struct Intensity <: DiffusionSolution
 	end
 end
 
-# # TODO: Replace quadgk on interpolated fcns with integrate on the raw data
+# decay_fcn_cut(ζ, δ) = H(δ - ζ)
+# decay_fcn_exp(ζ, δ) = exp(-ζ/δ)
 
-struct Microscopy <: DiffusionSolution
-	spot::Function
-	ring::Function
-	xmax::Float64
-	tmax::Float64
+# struct Decay
+# 	spot::Function
+# 	ring::Function
 
-	function Microscopy(
-		raw::RawOutput,
-		x::AbstractVector,
-		I::AbstractVector,
-		Rv::Float64)
+# 	function Decay(X::Float64, x2ζ⁻::Function, x2ζ⁺::Function)
+# 		spot_x_bnds = (0, X)
+# 		ring_x_bnds = (X, 2X)
 
-		qspot = eachindex(x)[x .≤ Rv]
-		qring = eachindex(x)[Rv .≤ x .≤ 2Rv]
+# 		spot = get_decay("cut", spot_x_bnds, x2ζ⁻, x2ζ⁺)
+# 		ring = get_decay("cut", ring_x_bnds, x2ζ⁻, x2ζ⁺)
 
-		function region(qregion)
-			itp = LinearInterpolation(
-				raw.t |> parent,
-				[
-					integrate(x[qregion], I[n][qregion])
-					for n ∈ 1:length(raw.t)
-				]
-			)
-			
-			fcn(t) = itp(t)
-			return fcn
-		end
-
-		return new(region(qspot), region(qring), maximum(x), maximum(raw.t))
-	end
-end
-
-function fold(vec)
-	folded_vector = Float64[]
-	for p ∈ eachindex(vec)
-		if p < lastindex(vec) - p
-			push!(folded_vector, vec[p] + vec[end - p])
-		elseif p == lastindex(vec) - p
-			push!(folded_vector, vec[p])
-		else
-			break
-		end
-	end
-	return folded_vector
-end
-
-function Microscopy(fus::FusionFC, raw::RawOutput, δ::Float64)
-	s2ϕ(s) = @. s / fus.R
-	ϕ2s(ϕ) = @. ϕ * fus.R
-	ϕ2x(ϕ) = @. sin(ϕ) * fus.R
-	x2ϕ(x) = @. asin(x / fus.R)
-	s2x(s) = s |> s2ϕ |> ϕ2x
-	x2s(x) = x |> x2ϕ |> ϕ2s
-	uniquesort(vec) = vec |> unique |> sort
-
-	smid = fus.R * π/2
-	x = [raw.s |> parent; smid] |> uniquesort |> s2x
-	stop = x |> x2s |> s′ -> [s′; ϕ2s(π) .- s′] |> uniquesort
-	sbot = ϕ2s(π) .- stop
-
-	function Uitp(s_, U′)
-		itp = LinearInterpolation(raw.s |> parent, U′ |> parent)
-		[itp(s′) for s′ ∈ s_]
-	end
-
-	Utop = [Uitp(stop, U′) for U′ ∈ parent(raw.U)]
-	Ubot = [Uitp(sbot, U′) for U′ ∈ parent(raw.U)]
-	I = Utop + Ubot
-
-	# s = Float64[]
-	# bFoundMid = false
-	# for s′ = x2s(x)
-	# 	if s′ == smid
-	# 		bFoundMid = true
-	# 		push!(s, s′)
-	# 	else
-	# 		push!(s, s′)
-	# 		push!(s, ϕ2s(π) .- s′)
-	# 	end
-	# end
-	# unique!(s)
-	# sort!(s)
-	# if !bFoundMid
-	# 	error("")
-	# end
-
-	# function Uitp(U′)
-	# 	itp = LinearInterpolation(raw.s |> parent, U′)
-	# 	[itp(s′) for s′ ∈ s]
-	# end
-	# U = [Uitp(U′ |> parent) for U′ ∈ raw.U]
-	# I = [fold(U′) for U′ ∈ U]
-
-	return Microscopy(raw, x, I, fus.ves.R)
-end
-
-# function Microscopy(δ::Float64, fus::FusionFC, raw::RawOutput)
-	
-# 	function ϕ2x(x)
-# 		ϕ′ = asin(x / fus.R)
-# 		return sort([ϕ′, π-ϕ′])
+# 		return new(spot, ring)
 # 	end
-
-# 	ϕ2s(ϕ) = fus.R * ϕ
-# 	# s2ϕ(s) = s / fus.R
-# 	# ϕ2z(ϕ) = fus.R * cos(ϕ)
-
-# 	U = OffsetVector(
-# 		[
-# 			OffsetVector(
-# 				[
-# 					raw.U[n][p] * exp(-s2z(s[p])/δ)
-# 					for p ∈ eachindex(raw.t)
-# 				], Origin(0)
-# 			) for n ∈ eachindex(raw.t)
-# 		], Origin(0)
-# 	)
-
-# 	sπ = ϕ2s(π)
-# 	Uitp = LinearInterpolation(
-# 		raw.s |> parent,
-# 		U |> parent
-# 	)
-# 	Uπ = Uitp(sπ)
-
-# 	bInterp = sπ ∈ raw.s
-
-# 	ptop = raw.p[raw.s .≤ sπ]
-# 	pbot = raw.p[raw.s .> sπ]
-
-# 	stop = raw.s[ptop]
-# 	sbot = raw.s[pbot]
-
-# 	bInterp && push!(stop, sπ)
-# 	bInterp && pushfirst!(sbot, sπ)
-
-# 	separateU(p) = OffsetVector(
-# 		[
-# 			OffsetVector(
-# 				[
-# 					U[n][p]
-# 					for p ∈ ptop
-# 				]
-# 			)
-# 			for n ∈ eachindex(raw.t)
-# 		],
-# 		Origin(0)
-# 	)
-
-# 	Utop = separateU(ptop)
-# 	Ubot = separateU(pbot)
-
-# 	for n ∈ eachindex(raw.t)
-# 		bInterp && push!(Utop[n], Uπ)
-# 		bInterp && pushfirst!(Ubot[n], Uπ)
-# 	end
-
-# 	Utop_itp = LinearInterpolation(raw.t |> parent, Utop |> parent)
-# 	Ubot_itp = LinearInterpolation(raw.t |> parent, Ubot |> parent)
-
-# 	x2s(x) = x |> x2ϕ |> ϕ2s
-
-# 	# function U_FC(x, t)
-# 	# 	s_top = x2s(x)
-# 	# 	s_bot = raw.s[end] - s_top
-# 	# 	UFC = Utop_itp(s_top)
-# 	# end
-
-# 	U_FC(x, t) = u_itp(x, t) * exp(-x2z(x) / δ)
-
-# 	return Microscopy(U_FC, )
 # end
 
+# function get_intensity(
+# 	decay::Function,
+# 	bnds::NTuple{2, Float64}, x, t, U,
+# 	x2ζ::Function)
+
+# 	@assert x |> issorted
+# 	@assert length(x) == length(unique(x))
+
+# 	x_lb = 0.0
+# 	x_ub = fus.ves.R
+
+# 	if x_lb ∉ x
+# 		Uitp = [LinearInterpolate(x, U′, extrapolation_bc = 0.0) for U′ ∈ U]
+# 		U_lb = [Uitp′(x_lb) for Uitp′ ∈ Uitp]
+# 		for (n, U′) ∈ enumerate(U)
+# 			pushfirst!(U′, U_lb[n])
+# 		end
+# 		push!(x, x_lb)
+# 		sort!(x)
+# 	end
+
+# 	if x_ub ∉ x
+# 		Uitp = [LinearInterpolate(x, U′, extrapolation_bc = 0.0) for U′ ∈ U]
+# 		U_ub = [Uitp′(x_ub) for Uitp′ ∈ Uitp]
+# 		for (n, U′) ∈ enumerate(U)
+# 			push!(U′, U_ub[n])
+# 		end
+# 		push!(x, x_ub)
+# 		sort!(x)
+# 	end
+
+# 	p = find(x_lb .≤ x .≤ x_ub)
+
+# 	x = x[p]
+# 	U = [U′[p] for U′ ∈ U]
+
+# 	Imat = [integrate(x, U′) * decay(x2ζ(x), δ) for U′ ∈ U]
+
+# 	Iitp = LinearInterpolation(t, Imat)
+
+# 	I(t) = Iitp(t)
+
+# 	return I
+# end
+
+# function get_decay(
+# 	decay::Function,
+# 	x_bnds::NTuple{2, Float64},
+# 	x2ζ⁻::Function,
+# 	x2ζ⁺::Function)
+
+# 	I⁻ = get_intensity(decay, x_bnds, x⁻, t, U⁻, x2ζ⁻)
+# 	I⁺ = get_intensity(decay, x_bnds, x⁺, t, U⁺, x2ζ⁺)
+
+# 	I(t) = I⁻(t) + I⁺(t)
+# end
+
+# get_decay(decay::String, args...) = get_decay(
+# 	getfield(ProteinDiffusion, "decay_fcn_" * decay),
+# 	args...
+# )
+
+# """
+# Struct for storing the evanescent wave microscopy intensity model functions obtained from transformation of the raw data to viewing range and depth and integrating over pre-defined viewing range range and factoring each concentration level with respect to depth.
+
+# Separated from the `Intensity` struct due to difference inherent difference in integration domain.
+# """
 # struct Microscopy <: DiffusionSolution
-# 	U::Function
-# 	ring::Function
-# 	spot::Function
+# 	mode::String
+# 	cut::Decay
+# 	exp::Decay
 # 	xmax::Float64
 # 	tmax::Float64
-
-# 	function Microscopy(U::Function, Rv::Float64, xmax::Float64, tmax::Float64)
-# 		Uring(t) = quadgk(x -> U(x, t), 0.0, Rv)[1]
-# 		Uspot(t) = quadgk(x -> U(x, t), Rv, 2Rv)[1]
-
-# 		return new(U, Uring, Uspot, xmax, tmax)
-# 	end
 # end
 
-# function Microscopy(δ::Float64, fus::FusionFC, ang::AngleFC)
-# 	function ϕ(x)
-# 		ϕ′ = asin(x / fus.R)
-# 		return sort([ϕ′ π-ϕ′], dims = 2)
-# 	end
+# function Microscopy(fus::FusionFC, raw::RawOutput)
+# 	decay_cut = Decay("cut", fus.R)
+# 	decay_exp = Decay("exp", fus.R)
 
-# 	z(ϕ) = fus.R * cos(ϕ)
-
-# 	Usummagrand(x, t) = ang.u.(ϕ(x), t) .* exp.(-z.(ϕ(x)) / δ)
-# 	U(x, t) = sum(Usummagrand(x, t), dims = 2)[1]
-
-# 	return Microscopy(U, fus.ves.R, fus.R, ang.tmax)
+# 	Microscopy(get_fusion_mode(fus), decay_cut, decay_exp, raw.t[end])
 # end
 
-# function Microscopy(δ::Float64, fus::FusionKR, ang::AngleKR)
-# 	function φ(x)
-# 		φ′ = asin(x / fus.Rv)
-# 		φset = Float64[]
-# 		0.0 ≤ φ′ ≤ fus.φv && push!(φset, φ′)
-# 		0.0 ≤ π - φ′ ≤ fus.φv && push!(φset, π - φ′)
-# 		return sort(φset', dims = 2)
-# 	end
+# function Microscopy(fus::FusionKR, raw::RawOutput)
+	
 
-# 	function ψ(x)
-# 		ψ′ = asin(x / fus.Rc)
-# 		ψset = Float64[]
-# 		π - fus.ψc ≤ ψ′ ≤ π && push!(ψset, ψ′)
-# 		π - fus.ψc ≤ π - ψ′ ≤ π && push!(ψset, ψ′)
-# 		return sort(ψset', dims = 2)
-# 	end
-
-# 	ξ(φ) = fus.Rv * cos(φ)
-# 	ζ(ψ) = fus.Rc * cos(ψ)
-
-# 	Vsummagrand(x, t) = ang.v.(φ(x), t) .* exp.(-ξ.(φ(x)) / δ)
-# 	Csummagrand(x, t) = ang.c.(ψ(x), t) .* exp.(-ζ.(ψ(x)) / δ)
-
-# 	V(x, t) = sum(Vsummagrand(x, t), dims = 2)[1]
-# 	C(x, t) = sum(Csummagrand(x, t), dims = 2)[1]
-# 	U(x, t) = V(x, t) + C(x, t)
-
-# 	return Microscopy(U, fus.ves.R, fus.Rc, ang.tmax)
+# 	Microscopy(get_fusion_mode(fus), decay_cut, decay_exp, raw.t[end])
 # end
 
+"""
+Struct for storing the diffusion information for Full-Collapse Fusion, including evanescent wave microscopy.
+"""
 struct DiffusionFC <: DiffusionMode
 	fus::FusionFC
 	raw::RawOutput
 	arc::ArcLength
 	ang::AngleFC
 	int::Intensity
-	ewm::Microscopy
+	# ewm::Microscopy
 
 	function DiffusionFC(
 		fus::FusionFC,
-		δ::Float64 = Inf64
-	)
+		δ::Float64 = Inf64)
+
 		sj = fus.R * fus.ϕj
 		sP = π * fus.R
 
@@ -390,25 +282,29 @@ struct DiffusionFC <: DiffusionMode
 
 		s, t, U, pj = diffusion_fem(sj, sP, ω, R, D, u∞)
 		
-		raw = RawOutput("Full-Collapse Fusion", s, t, U, pj)
+		raw = RawOutput(get_fusion_mode(fus), s, t, U, pj)
 		arc = ArcLength(raw)
 		ang = AngleFC(fus, arc)
 		int = Intensity(raw, arc, R, ω)
-		ewm = Microscopy(fus, raw, δ)
+		# ewm = Microscopy(fus, raw, δ)
 
-		return new(fus, raw, arc, ang, int, ewm)
+		# return new(fus, raw, arc, ang, int, ewm)
+		return new(fus, raw, arc, ang, int)
 	end
 end
 
 DiffusionFC(args...) = FusionFC(args...) |> DiffusionFC
 
+"""
+Struct for storing the diffusion information for Kiss-and-Run Fusion, including evanescent wave microscopy.
+"""
 struct DiffusionKR <: DiffusionMode
 	fus::FusionKR
 	raw::RawOutput
 	arc::ArcLength
 	ang::AngleKR
 	int::Intensity
-	ewm::Microscopy
+	# ewm::Microscopy
 
 	function DiffusionKR(
 		fus::FusionKR,
@@ -430,14 +326,20 @@ struct DiffusionKR <: DiffusionMode
 
 		s, t, U, pj = diffusion_fem(sj, sP, ω, R, D, u∞)
 
-		raw = RawOutput("Kiss-and-Run Fusion", s, t, U, pj)
+		raw = RawOutput(get_fusion_mode(fus), s, t, U, pj)
 		arc = ArcLength(raw)
 		ang = AngleKR(fus, arc)
 		int = Intensity(raw, arc, R, ω)
-		ewm = Microscopy(δ, fus, ang)
+		# ewm = Microscopy(fus, raw, δ)
 
-		return new(fus, raw, arc, ang, int, ewm)
+		# return new(fus, raw, arc, ang, int, ewm)
+		return new(fus, raw, arc, ang, int)
 	end
 end
 
 DiffusionKR(args...) = FusionKR(args...) |> DiffusionKR
+
+get_fusion_mode(::FusionFC) = "Full-Collapse"
+get_fusion_mode(::FusionKR) = "Kiss-and-Run"
+get_fusion_mode(dm::DiffusionMode) = get_fusion_mode(dm.fus)
+get_fusion_mode(ds::DiffusionSolution) = ds.mode

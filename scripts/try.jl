@@ -93,3 +93,15 @@ for (n, s′) ∈ enumerate(s)
 		end
 	end
 end
+
+##
+for U ∈ fc.raw.U
+	if any(U .< 0)
+		idxs = findall(U .< 0)
+		for u ∈ U[idxs]
+			if abs(u) > 1e-150
+				@show u
+			end
+		end
+	end
+end

@@ -1,6 +1,13 @@
-NOVector64 = OffsetVector{OffsetVector{Float64, Vector{Float64}}, Vector{OffsetVector{Float64, Vector{Float64}}}}
+Vector64 = Vector{Float64}
+
+NVector64 = Vector{Vector64}
 
 OVector64 = OffsetVector{Float64}
+
+NOVector64 = OffsetVector{
+	OffsetVector{Float64, Vector64},
+	Vector{OffsetVector{Float64, Vector64}}
+}
 
 abstract type PD end
 
