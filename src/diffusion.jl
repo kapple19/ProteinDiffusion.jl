@@ -280,7 +280,29 @@ struct DiffusionFC <: DiffusionMode
 
 		u∞ = (1 - cos(fus.ϕj))/2
 
-		s, t, U, pj = diffusion_fem(sj, sP, ω, R, D, u∞)
+		P′ = 1500
+		pj′ = P′ ÷ 2
+
+		function spatial_grid(p::Int64)
+			p ∉ 0:P′ && error("Index outside grid.")
+			p == 0 && return 0.0
+			p == pj′ && return sj
+			p == P′ && return sP
+			p < pj′ && return sj * (1 - (1 - p / pj′)^3)
+			p > pj′ && return sj + (sP - sj) * ((p - pj′) / (P′ - pj′))^3
+			return NaN
+		end
+
+		s = OffsetVector(
+			[
+				[spatial_grid(p) for p ∈ 0:P′];
+				π/4 * fus.R
+			] |> unique! |> sort!,
+			Origin(0)
+		)
+		pj = findfirst(s .== sj)
+
+		t, U, pj = diffusion_fem(s, pj, ω, R, D, u∞)
 		
 		raw = RawOutput(get_fusion_mode(fus), s, t, U, pj)
 		arc = ArcLength(raw)
@@ -324,7 +346,32 @@ struct DiffusionKR <: DiffusionMode
 			+ fus.Rc^2 * (1 - cos(fus.ψc))
 		)
 
-		s, t, U, pj = diffusion_fem(sj, sP, ω, R, D, u∞)
+		P′ = 1500
+		pj′ = P′ ÷ 2
+
+		φ2s(φ) = φ * fus.Rv
+		ψ2s(ψ) = fus.Rc * (ψ + fus.ψc - π) + sj
+
+		function spatial_grid(p::Int64)
+			p ∉ 0:P′ && error("Index outside grid.")
+			p == 0 && return 0.0
+			p == pj′ && return sj
+			p == P′ && return sP
+			p < pj′ && return sj * (1 - (1 - p / pj′)^3)
+			p > pj′ && return sj + (sP - sj) * ((p - pj′) / (P′ - pj′))^3
+			return NaN
+		end
+
+		s = OffsetVector(
+			[
+				[spatial_grid(p) for p ∈ 0:P′];
+				φ2s(π/4); ψ2s(π/4) 
+			] |> unique! |> sort!,
+			Origin(0)
+		)
+		pj = findfirst(s .== sj)
+
+		t, U, pj = diffusion_fem(s, pj, ω, R, D, u∞)
 
 		raw = RawOutput(get_fusion_mode(fus), s, t, U, pj)
 		arc = ArcLength(raw)

@@ -1,30 +1,30 @@
 function diffusion_fem(
-	sj::Float64,
-	sP::Float64,
+	s::OVector64,
+	pj::Int64,
 	ω::Function,
 	R::Function,
 	D::Function,
 	u∞::Float64)
 
 	# Spatial Grid
-	P = 1500
-	pj = P ÷ 2
-	ℙ = 0:P
+	P = length(s) - 1
+	sj = s[pj]
+	# ℙ = 0:P
 
-	function spatial_grid(p::Integer)
-		p ∉ ℙ && error("Index outside grid.")
-		p == 0 && return 0.0
-		p == pj && return sj
-		p == P && return sP
-		p < pj && return sj * (1 - (1 - p / pj)^3)
-		p > pj && return sj + (sP - sj) * ((p - pj) / (P - pj))^3
-		return NaN
-	end
+	# function spatial_grid(p::Integer)
+	# 	p ∉ ℙ && error("Index outside grid.")
+	# 	p == 0 && return 0.0
+	# 	p == pj && return sj
+	# 	p == P && return sP
+	# 	p < pj && return sj * (1 - (1 - p / pj)^3)
+	# 	p > pj && return sj + (sP - sj) * ((p - pj) / (P - pj))^3
+	# 	return NaN
+	# end
 
-	s = OffsetArray(
-		[spatial_grid(p) for p ∈ ℙ],
-		Origin(0)
-	)
+	# s = OffsetArray(
+	# 	[spatial_grid(p) for p ∈ ℙ],
+	# 	Origin(0)
+	# )
 	h = s |> parent |> diff
 
 	# Mass & Stiffness Matrices
@@ -120,5 +120,5 @@ function diffusion_fem(
 	end
 	
 	## Return results
-	return s, t, U, pj
+	return t, U, pj
 end

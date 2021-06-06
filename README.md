@@ -58,6 +58,8 @@ As detailed in the [documentation][doc]:
 5. The solved dynamics are interpolated into a function.
 
 ## Development Roadmap
+* Include angular extremeties in grid.
+* Derive base timestep.
 * Develop tests for known analytic solutions.
 * Decrease timestepping (especially for integration, becomes visibly piecewise-linear).
 * Reduce computation time for integration.

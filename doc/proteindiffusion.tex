@@ -824,14 +824,14 @@ so we have our system
 \end{align*}
 with mass matrix $M$ and stiffness matrix $S$.
 
-\subsection{Taming Discontinuity}
+\subsection{Old Spatial Grid}
 A Heaviside transition of parameter values is located at the junction in both fusion modes. An optimal selection of spatial grid spacing minimizes the possibility of violating the law of conservation. This motivates placing a large concentration of points around the junction point. The junction itself must also be a grid point.
 
 We apply cubic spacing on the vesicle and cell domains separately.
 
 The vesicular gridding must satisfy
 \begin{align*}
-	s_0 &= 0
+	s_0 &= 0 \\
 	s_{p_j} &= s_j
 \end{align*}
 and be concave down, which leads to
@@ -848,6 +848,9 @@ and must be concave up, leading to
 \begin{align*}
 	s_p &= s_j + \Par{s_P - s_j} \Par{\frac{p - p_j}{P - p_j}}^3
 \end{align*}
+
+\subsection{Spatial Grid}
+
 
 \section{Temporal Discretisation}
 Due to stiffness, we select a backward Euler dynamic timestepping scheme. Define
