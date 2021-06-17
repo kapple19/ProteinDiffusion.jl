@@ -40,9 +40,9 @@ struct ArcLength <: DiffusionSolution
 		tmax = raw.t[end]
 
 		function u(s, t)
-			0.0 ≤ s ≤ smax && return 0.0
+			0.0 ≤ s ≤ smax && return itp(s, t)
 			0.0 ≤ t ≤ tmax && return NaN
-			return itp(s, t)
+			return 0.0
 		end
 
 		v(s::Real, t::Real) = 0 ≤ s ≤ sj ? u(s, t) : 0.0
