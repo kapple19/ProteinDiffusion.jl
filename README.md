@@ -59,10 +59,10 @@ As detailed in the [documentation][doc]:
 
 ## Development Roadmap
 [x] Include angular extremeties in grid.
-[ ] Derive base timestep. (Hard)
+[ ] Derive base timestep. (Hard, or non-dimensionalise?)
 [ ] Develop tests for known analytic solutions.
-[ ] Decrease timestepping (especially for integration, becomes visibly piecewise-linear).
-[ ] Reduce computation time for integration.
+[x] Decrease timestepping (especially for integration, becomes visibly piecewise-linear).
+[ ] Reduce computation time for integration, i.e. don't integrate, use trapezoidal rule instead.
 [ ] Parse for valid inputs.
 [ ] Create comparison structure/function.
 [ ] Compute fusion spot radius.
