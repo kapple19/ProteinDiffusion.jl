@@ -64,10 +64,10 @@ struct AngleFC <: DiffusionAngleSolution
 	tmax::Float64
 
 	function AngleFC(fus::FusionFC, arc::ArcLength)
-		ϕ2s(ϕ) = fus.R * ϕ
-		u(ϕ, t) = arc.u(ϕ2s(ϕ), t)
-		v(ϕ, t) = arc.v(ϕ2s(ϕ), t)
-		c(ϕ, t) = arc.c(ϕ2s(ϕ), t)
+		tr = transforms(fus)
+		u(ϕ, t) = arc.u(tr.ϕ2s(ϕ), t)
+		v(ϕ, t) = arc.v(tr.ϕ2s(ϕ), t)
+		c(ϕ, t) = arc.c(tr.ϕ2s(ϕ), t)
 		ϕj = arc.sj / fus.R
 		return new(arc.mode, u, v, c, ϕj, arc.tmax)
 	end
@@ -85,11 +85,10 @@ struct AngleKR <: DiffusionAngleSolution
 	tmax::Float64
 
 	function AngleKR(fus::FusionKR, arc::ArcLength)
-		φ2s(φ) = fus.Rv * φ
-		ψ2s(ψ) = arc.sj + fus.Rc * (ψ + fus.ψc - π)
+		trv, trc = transforms(fus)
 		
-		v(φ, t) = arc.v(φ2s(φ), t)
-		c(ψ, t) = arc.c(ψ2s(ψ), t)
+		v(φ, t) = arc.v(trv.φ2s(φ), t)
+		c(ψ, t) = arc.c(trc.ψ2s(ψ), t)
 		
 		return new(arc.mode, v, c, fus.φv, π - fus.ψc, arc.tmax)
 	end
@@ -271,10 +270,14 @@ struct DiffusionFC <: DiffusionMode
 		fus::FusionFC,
 		δ::Float64 = Inf64)
 
-		sj = fus.R * fus.ϕj
-		sP = π * fus.R
+		tr = transforms(fus)
 
-		ω(s) = s / fus.R
+		# sj = fus.R * fus.ϕj
+		# sP = π * fus.R
+		sj = tr.ϕ2s(fus.ϕj)
+		sP = tr.ϕ2s(π)
+
+		ω(s) = tr.s2ϕ(s)
 		R(s) = fus.R
 		D(s) = fus.ves.D * H(sj - s) + fus.cel.D * H(s - sj)
 
@@ -296,7 +299,7 @@ struct DiffusionFC <: DiffusionMode
 		s = OffsetVector(
 			[
 				[spatial_grid(p) for p ∈ 0:P′];
-				π/4 * fus.R
+				tr.ϕ2s(π/4)
 			] |> unique! |> sort!,
 			Origin(0)
 		)
@@ -330,14 +333,16 @@ struct DiffusionKR <: DiffusionMode
 
 	function DiffusionKR(
 		fus::FusionKR,
-		δ::Float64 = Inf
-	)
-		sj = fus.Rv * fus.φv
-		sP = sj + fus.Rc * fus.ψc
+		δ::Float64 = Inf)
+
+		trv, trc = transforms(fus)
+
+		# sj = fus.Rv * fus.φv
+		# sP = sj + fus.Rc * fus.ψc
+		sj = trv.φ2s(fus.φv)
+		sP = trc.ψ2s(π)
 		
-		φ(s) = s / fus.Rv
-		ψ(s) = (s - sj) / fus.Rc + π - fus.ψc
-		ω(s) = φ(s) * H(sj - s) + ψ(s) * H(s - sj)
+		ω(s) = trv.s2φ(s) * H(sj - s) + trc.s2ψ(s) * H(s - sj)
 		D(s) = fus.ves.D * H(sj - s) + fus.cel.D * H(s - sj)
 		R(s) = fus.Rv * H(sj - s) + fus.Rc * H(s - sj)
 		
@@ -348,9 +353,6 @@ struct DiffusionKR <: DiffusionMode
 
 		P′ = 1500
 		pj′ = P′ ÷ 2
-
-		φ2s(φ) = φ * fus.Rv
-		ψ2s(ψ) = fus.Rc * (ψ + fus.ψc - π) + sj
 
 		function spatial_grid(p::Int64)
 			p ∉ 0:P′ && error("Index outside grid.")
@@ -365,7 +367,7 @@ struct DiffusionKR <: DiffusionMode
 		s = OffsetVector(
 			[
 				[spatial_grid(p) for p ∈ 0:P′];
-				φ2s(π/4); ψ2s(π/4) 
+				trv.φ2s(π/4); trc.ψ2s(π/4) 
 			] |> unique! |> sort!,
 			Origin(0)
 		)
