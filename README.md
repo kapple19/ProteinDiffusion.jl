@@ -58,15 +58,15 @@ As detailed in the [documentation][doc]:
 5. The solved dynamics are interpolated into a function.
 
 ## Development Roadmap
-* Include angular extremeties in grid.
-* Derive base timestep.
-* Develop tests for known analytic solutions.
-* Decrease timestepping (especially for integration, becomes visibly piecewise-linear).
-* Reduce computation time for integration.
-* Parse for valid inputs.
-* Create comparison structure/function.
-* Compute fusion spot radius.
-* Simulate pixellation.
+[x] Include angular extremeties in grid.
+[ ] Derive base timestep. (Hard)
+[ ] Develop tests for known analytic solutions.
+[ ] Decrease timestepping (especially for integration, becomes visibly piecewise-linear).
+[ ] Reduce computation time for integration.
+[ ] Parse for valid inputs.
+[ ] Create comparison structure/function.
+[ ] Compute fusion spot radius.
+[ ] Simulate pixellation.
 
 ### Discussion
 * TIRF Microscopy method research.
