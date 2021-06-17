@@ -849,9 +849,6 @@ and must be concave up, leading to
 	s_p &= s_j + \Par{s_P - s_j} \Par{\frac{p - p_j}{P - p_j}}^3
 \end{align*}
 
-\subsection{Spatial Grid}
-
-
 \section{Temporal Discretisation}
 Due to stiffness, we select a backward Euler dynamic timestepping scheme. Define
 \begin{align*}
@@ -890,6 +887,32 @@ For clarity, define
 	\bbP_+ &= \Brace{1, ..., P} \\
 	\R(s) &= R(s) \sin\Par{\omega(s)} \\
 	\D(s) &= D(s) \sin\Par{\omega(s)}
+\end{align*}
+
+\subsection{Dynamic Time Step}
+For $\alpha \in (0, 1)$, we want
+\begin{align*}
+	\sum_{p \in \bbP_v} U_p^1 &= \alpha \sum_{p \in \bbP_v} U_p^0
+\end{align*}
+Note
+\begin{align*}
+	\Brack{I}_p &= \delta_\bbP(p) \\
+	\sum_{p \in \bbP_v} U_p^n &= I^T \vec{U}^n
+\end{align*}
+so we want
+\begin{align*}
+	I^T \vec{U}^1 &= \alpha I^T \vec{U}^0
+\end{align*}
+Also note
+\begin{align*}
+	\Par{M + \Delta{t}_1 S} \vec{U}^1 &= M \vec{U}^0
+\end{align*}
+so
+\begin{align*}
+	\vec{U}^1 &= \Par{M + \Delta{t}_1 S}^{-1} M \vec{U}^0 \\
+	\Rightarrow I^T \vec{U}^1 &= I^T \Par{M + \Delta{t}_1 S}^{-1} M \vec{U}^0 \\
+	\Rightarrow \alpha I^T \vec{U}^0 &= I^T \Par{M + \Delta{t}_1 S}^{-1} M \vec{U}^0 \\
+	\Rightarrow 
 \end{align*}
 
 \section{Mass Matrix}
